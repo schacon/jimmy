@@ -459,10 +459,12 @@ struct StatsBox: View {
     }
     
     private var progressColor: Color {
-        if workoutPercentage >= 70 {
+        if workoutPercentage >= 50 {
             return .green
-        } else if workoutPercentage >= 50 {
+        } else if workoutPercentage >= 40 {
             return .orange
+        } else if workoutPercentage >= 20 {
+            return .yellow
         } else {
             return .red
         }
