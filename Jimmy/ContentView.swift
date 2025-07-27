@@ -448,18 +448,45 @@ struct StatsBox: View {
     }
     
     private var elapsedWeeksInCurrentMonth: Int {
-        let startOfMonth = calendar.dateInterval(of: .month, for: dateRange.lowerBound)?.start ?? dateRange.lowerBound
+        guard let startOfMonth = calendar.dateInterval(of: .month, for: dateRange.lowerBound)?.start,
+              let endOfMonth = calendar.dateInterval(of: .month, for: dateRange.lowerBound)?.end else {
+            return 1
+        }
+        
         let today = Date()
+        let endDate = min(endOfMonth, today) // Don't count future weeks
         
-        // Find which week of the month today falls in
-        let dayOfMonth = calendar.component(.day, from: today)
-        let firstDayWeekday = calendar.component(.weekday, from: startOfMonth)
+        var validWeeks = 0
+        var currentWeekStart = startOfMonth
         
-        // Calculate how many complete weeks + current partial week
-        let elapsedDays = dayOfMonth + firstDayWeekday - 2 // -1 for 0-based, -1 for weekday offset
-        let weeksElapsed = max(1, (elapsedDays / 7) + 1)
+        // Go through each week until we reach the end date
+        while currentWeekStart < endDate {
+            // Find the start of the current week
+            let weekInterval = calendar.dateInterval(of: .weekOfYear, for: currentWeekStart)
+            guard let weekStart = weekInterval?.start,
+                  let weekEnd = weekInterval?.end else {
+                break
+            }
+            
+            // Count days in this week that are in the current month and not in the future
+            let weekStartInMonth = max(weekStart, startOfMonth)
+            let weekEndInMonth = min(weekEnd, endOfMonth)
+            let weekEndElapsed = min(weekEndInMonth, today)
+            
+            if weekStartInMonth < weekEndElapsed {
+                let daysInWeek = calendar.dateComponents([.day], from: weekStartInMonth, to: weekEndElapsed).day ?? 0
+                
+                // Only count weeks with more than 4 days in the current month
+                if daysInWeek > 4 {
+                    validWeeks += 1
+                }
+            }
+            
+            // Move to next week
+            currentWeekStart = calendar.date(byAdding: .weekOfYear, value: 1, to: currentWeekStart) ?? endDate
+        }
         
-        return weeksElapsed
+        return max(1, validWeeks) // Always return at least 1
     }
     
     private var daysInRange: Int {
