@@ -155,17 +155,34 @@ struct CalendarView: View {
                         .frame(maxWidth: .infinity)
                         .foregroundColor(.secondary)
                 }
+                // Space for checkmark column
+                Spacer()
+                    .frame(width: 20)
             }
             
-            // Calendar grid
-            LazyVGrid(columns: columns, spacing: 8) {
-                ForEach(daysInMonth, id: \.self) { date in
-                    DayView(
-                        date: date,
-                        isCurrentMonth: calendar.isDate(date, equalTo: currentDate, toGranularity: .month),
-                        workoutStatus: workoutStatus(for: date),
-                        onTap: { onDateTap(date) }
-                    )
+            // Calendar grid with weekly checkmarks
+            VStack(spacing: 8) {
+                ForEach(Array(weekRows.enumerated()), id: \.offset) { weekIndex, weekDays in
+                    HStack(spacing: 8) {
+                        ForEach(weekDays, id: \.self) { date in
+                            DayView(
+                                date: date,
+                                isCurrentMonth: calendar.isDate(date, equalTo: currentDate, toGranularity: .month),
+                                workoutStatus: workoutStatus(for: date),
+                                onTap: { onDateTap(date) }
+                            )
+                        }
+                        
+                        // Weekly checkmark
+                        if hasThreeWorkoutsInWeek(weekDays) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                                .font(.system(size: 16))
+                        } else {
+                            Spacer()
+                                .frame(width: 16)
+                        }
+                    }
                 }
             }
         }
@@ -207,6 +224,32 @@ struct CalendarView: View {
         }
         
         return days
+    }
+    
+    private var weekRows: [[Date]] {
+        let days = daysInMonth
+        var weeks: [[Date]] = []
+        
+        for i in stride(from: 0, to: days.count, by: 7) {
+            let weekEnd = min(i + 7, days.count)
+            let week = Array(days[i..<weekEnd])
+            weeks.append(week)
+        }
+        
+        return weeks
+    }
+    
+    private func hasThreeWorkoutsInWeek(_ weekDays: [Date]) -> Bool {
+        let workoutCount = weekDays.reduce(0) { count, date in
+            let startOfDay = calendar.startOfDay(for: date)
+            if let workout = workouts.first(where: { 
+                calendar.isDate($0.date, inSameDayAs: startOfDay) 
+            }), workout.didWorkout {
+                return count + 1
+            }
+            return count
+        }
+        return workoutCount >= 3
     }
     
     private func workoutStatus(for date: Date) -> WorkoutStatus {
