@@ -22,16 +22,29 @@ struct ContentView: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            // Header
-            Text("Gym Tracker")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .padding(.top)
-            
             // Month and Year
             Text(dateFormatter.string(from: currentDate))
                 .font(.title2)
                 .fontWeight(.semibold)
+                .padding(.top)
+            
+            // Stats boxes
+            HStack(spacing: 12) {
+                StatsBox(
+                    title: "Last 6 Months",
+                    workouts: workouts,
+                    dateRange: last6MonthsRange,
+                    isCurrentMonth: false
+                )
+                
+                StatsBox(
+                    title: "This Month",
+                    workouts: workouts,
+                    dateRange: currentMonthRange,
+                    isCurrentMonth: true
+                )
+            }
+            .padding(.horizontal)
             
             // Calendar Grid
             CalendarView(
@@ -108,6 +121,18 @@ struct ContentView: View {
         }
         
         try? modelContext.save()
+    }
+    
+    private var last6MonthsRange: ClosedRange<Date> {
+        let endDate = Date()
+        let startDate = calendar.date(byAdding: .month, value: -6, to: endDate) ?? endDate
+        return startDate...endDate
+    }
+    
+    private var currentMonthRange: ClosedRange<Date> {
+        let startOfMonth = calendar.dateInterval(of: .month, for: currentDate)?.start ?? currentDate
+        let endOfMonth = calendar.dateInterval(of: .month, for: currentDate)?.end ?? currentDate
+        return startOfMonth...endOfMonth
     }
 }
 
@@ -277,6 +302,96 @@ struct DayView: View {
             return 1.0
         case .noData, .future:
             return 0.0
+        }
+    }
+}
+
+struct StatsBox: View {
+    let title: String
+    let workouts: [Workout]
+    let dateRange: ClosedRange<Date>
+    let isCurrentMonth: Bool
+    
+    private let calendar = Calendar.current
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.caption)
+                .fontWeight(.semibold)
+                .foregroundColor(.secondary)
+            
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Image(systemName: "calendar.badge.checkmark")
+                        .foregroundColor(.blue)
+                        .font(.caption)
+                    Text("\(weeksWithThreePlusWorkouts) weeks")
+                        .font(.caption2)
+                        .fontWeight(.medium)
+                }
+                
+                Text("\(Int(workoutPercentage))% days")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                
+                ProgressView(value: workoutPercentage / 100)
+                    .progressViewStyle(LinearProgressViewStyle(tint: progressColor))
+                    .scaleEffect(y: 0.8)
+            }
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.systemGray6))
+        .cornerRadius(12)
+    }
+    
+    private var workoutPercentage: Double {
+        let relevantWorkouts = workouts.filter { workout in
+            dateRange.contains(workout.date) && workout.didWorkout
+        }
+        
+        let totalDays = isCurrentMonth ? daysSinceStartOfMonth : daysInRange
+        guard totalDays > 0 else { return 0 }
+        
+        return Double(relevantWorkouts.count) / Double(totalDays) * 100
+    }
+    
+    private var weeksWithThreePlusWorkouts: Int {
+        var weeklyWorkouts: [Int: Int] = [:]
+        
+        for workout in workouts {
+            guard dateRange.contains(workout.date) && workout.didWorkout else { continue }
+            
+            let weekOfYear = calendar.component(.weekOfYear, from: workout.date)
+            let year = calendar.component(.year, from: workout.date)
+            let weekKey = year * 100 + weekOfYear
+            
+            weeklyWorkouts[weekKey, default: 0] += 1
+        }
+        
+        return weeklyWorkouts.values.filter { $0 >= 3 }.count
+    }
+    
+    private var daysInRange: Int {
+        let startDate = dateRange.lowerBound
+        let endDate = min(dateRange.upperBound, Date()) // Don't count future days
+        return calendar.dateComponents([.day], from: startDate, to: endDate).day ?? 0
+    }
+    
+    private var daysSinceStartOfMonth: Int {
+        let startOfMonth = calendar.dateInterval(of: .month, for: dateRange.lowerBound)?.start ?? dateRange.lowerBound
+        let endDate = min(dateRange.upperBound, Date()) // Don't count future days
+        return calendar.dateComponents([.day], from: startOfMonth, to: endDate).day ?? 0
+    }
+    
+    private var progressColor: Color {
+        if workoutPercentage >= 70 {
+            return .green
+        } else if workoutPercentage >= 50 {
+            return .orange
+        } else {
+            return .red
         }
     }
 }
