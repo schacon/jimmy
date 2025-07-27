@@ -99,8 +99,8 @@ struct ContentView: View {
         if let existingWorkout = workouts.first(where: { 
             calendar.isDate($0.date, inSameDayAs: startOfDay) 
         }) {
-            // Toggle existing workout
-            existingWorkout.didWorkout.toggle()
+            // If workout exists, delete it (revert to no data)
+            modelContext.delete(existingWorkout)
         } else {
             // Create new workout entry
             let newWorkout = Workout(date: startOfDay, didWorkout: true)
