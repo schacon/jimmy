@@ -9,10 +9,12 @@ import Foundation
 import SwiftData
 
 @Model
-final class Item {
-    var timestamp: Date
+final class Workout {
+    var date: Date
+    var didWorkout: Bool
     
-    init(timestamp: Date) {
-        self.timestamp = timestamp
+    init(date: Date, didWorkout: Bool = false) {
+        self.date = Calendar.current.startOfDay(for: date) // Store only the date part
+        self.didWorkout = didWorkout
     }
 }
