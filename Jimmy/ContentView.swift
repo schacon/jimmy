@@ -376,7 +376,7 @@ struct StatsBox: View {
                     Image(systemName: "calendar.badge.checkmark")
                         .foregroundColor(.blue)
                         .font(.caption)
-                    Text("\(weeksWithThreePlusWorkouts)/\(totalWeeksInRange) weeks")
+                    Text("\(weeksWithThreePlusWorkouts)/\(isCurrentMonth ? elapsedWeeksInCurrentMonth : totalWeeksInRange) weeks")
                         .font(.caption2)
                         .fontWeight(.medium)
                 }
@@ -429,6 +429,21 @@ struct StatsBox: View {
         
         let weeksBetween = calendar.dateComponents([.weekOfYear], from: startDate, to: endDate).weekOfYear ?? 0
         return max(1, weeksBetween + 1) // +1 because we include partial weeks
+    }
+    
+    private var elapsedWeeksInCurrentMonth: Int {
+        let startOfMonth = calendar.dateInterval(of: .month, for: dateRange.lowerBound)?.start ?? dateRange.lowerBound
+        let today = Date()
+        
+        // Find which week of the month today falls in
+        let dayOfMonth = calendar.component(.day, from: today)
+        let firstDayWeekday = calendar.component(.weekday, from: startOfMonth)
+        
+        // Calculate how many complete weeks + current partial week
+        let elapsedDays = dayOfMonth + firstDayWeekday - 2 // -1 for 0-based, -1 for weekday offset
+        let weeksElapsed = max(1, (elapsedDays / 7) + 1)
+        
+        return weeksElapsed
     }
     
     private var daysInRange: Int {
