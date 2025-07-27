@@ -381,9 +381,15 @@ struct StatsBox: View {
                         .fontWeight(.medium)
                 }
                 
-                Text("\(Int(workoutPercentage))% days (\(workoutDaysCount)/\(totalDaysForCalculation))")
-                    .font(.title3)
-                    .fontWeight(.bold)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(Int(workoutPercentage))% days")
+                        .font(.title3)
+                        .fontWeight(.bold)
+                    
+                    Text("(\(workoutDaysCount)/\(totalDaysForCalculation))")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
                 
                 ProgressView(value: workoutPercentage / 100)
                     .progressViewStyle(LinearProgressViewStyle(tint: progressColor))
