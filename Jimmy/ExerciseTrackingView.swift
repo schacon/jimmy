@@ -134,13 +134,43 @@ struct ExerciseEntryCard: View {
                         .font(.headline)
                         .fontWeight(.semibold)
                     
-                    if let category = entry.exercise?.category, !category.isEmpty {
-                        Text(category)
-                            .font(.caption)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 2)
-                            .background(Color.blue.opacity(0.1))
-                            .cornerRadius(4)
+                    HStack(spacing: 12) {
+                        if let category = entry.exercise?.category, !category.isEmpty {
+                            Text(category)
+                                .font(.caption)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 2)
+                                .background(Color.blue.opacity(0.1))
+                                .cornerRadius(4)
+                        }
+                        
+                        // Stats display
+                        if let sets = entry.sets, !sets.isEmpty {
+                            let avgWeight = averageWeight(sets: sets)
+                            let totalRepsCount = totalReps(sets: sets)
+                            
+                            if avgWeight > 0 || totalRepsCount > 0 {
+                                HStack(spacing: 8) {
+                                    if avgWeight > 0 {
+                                        Text("Avg: \(Int(avgWeight)) lbs")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    
+                                    if avgWeight > 0 && totalRepsCount > 0 {
+                                        Text("•")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    
+                                    if totalRepsCount > 0 {
+                                        Text("Total: \(totalRepsCount) reps")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 
@@ -210,6 +240,16 @@ struct ExerciseEntryCard: View {
     private func deleteEntry() {
         modelContext.delete(entry)
         try? modelContext.save()
+    }
+    
+    private func averageWeight(sets: [ExerciseSet]) -> Double {
+        let setsWithWeight = sets.filter { $0.weight > 0 }
+        let totalWeight = setsWithWeight.reduce(0) { $0 + $1.weight }
+        return setsWithWeight.isEmpty ? 0 : totalWeight / Double(setsWithWeight.count)
+    }
+    
+    private func totalReps(sets: [ExerciseSet]) -> Int {
+        return sets.reduce(0) { $0 + $1.reps }
     }
 }
 

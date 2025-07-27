@@ -288,7 +288,9 @@ struct EditExerciseEntryView: View {
     }
     
     private func addSet() {
-        sets.append(ExerciseSetInput())
+        // Copy weight from previous set if available
+        let previousWeight = sets.last?.weight ?? 0
+        sets.append(ExerciseSetInput(weight: previousWeight, reps: 0))
     }
     
     private func removeSet(at index: Int) {
@@ -319,6 +321,17 @@ struct EditExerciseEntryView: View {
         
         try? modelContext.save()
         dismiss()
+    }
+}
+
+// Shared struct for input handling
+struct ExerciseSetInput {
+    var weight: Double = 0
+    var reps: Int = 0
+    
+    init(weight: Double = 0, reps: Int = 0) {
+        self.weight = weight
+        self.reps = reps
     }
 }
 
