@@ -324,17 +324,6 @@ struct EditExerciseEntryView: View {
     }
 }
 
-// Shared struct for input handling
-struct ExerciseSetInput {
-    var weight: Double = 0
-    var reps: Int = 0
-    
-    init(weight: Double = 0, reps: Int = 0) {
-        self.weight = weight
-        self.reps = reps
-    }
-}
-
 #Preview {
     ExerciseManagementView()
         .modelContainer(for: [Exercise.self, ExerciseEntry.self, ExerciseSet.self], inMemory: true)
