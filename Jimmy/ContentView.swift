@@ -10,6 +10,24 @@ import SwiftData
 import Foundation
 
 struct ContentView: View {
+    var body: some View {
+        TabView {
+            WorkoutCalendarView()
+                .tabItem {
+                    Image(systemName: "calendar")
+                    Text("Calendar")
+                }
+            
+            ExerciseTrackingView()
+                .tabItem {
+                    Image(systemName: "dumbbell")
+                    Text("Exercises")
+                }
+        }
+    }
+}
+
+struct WorkoutCalendarView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var workouts: [Workout]
     @State private var currentDate = Date()

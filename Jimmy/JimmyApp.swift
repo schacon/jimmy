@@ -14,6 +14,9 @@ struct JimmyApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Workout.self,
+            Exercise.self,
+            ExerciseEntry.self,
+            ExerciseSet.self,
         ])
         
         // Try CloudKit first, fallback to local storage if it fails

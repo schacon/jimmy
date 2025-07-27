@@ -18,3 +18,42 @@ final class Workout {
         self.didWorkout = didWorkout
     }
 }
+
+@Model
+final class Exercise {
+    var name: String = ""
+    var category: String? = nil
+    var dateCreated: Date = Date()
+    
+    init(name: String, category: String? = nil) {
+        self.name = name
+        self.category = category
+        self.dateCreated = Date()
+    }
+}
+
+@Model
+final class ExerciseEntry {
+    var date: Date = Date()
+    var exercise: Exercise?
+    var sets: [ExerciseSet] = []
+    var notes: String? = nil
+    
+    init(date: Date, exercise: Exercise) {
+        self.date = Calendar.current.startOfDay(for: date)
+        self.exercise = exercise
+        self.sets = []
+    }
+}
+
+@Model 
+final class ExerciseSet {
+    var weight: Double = 0.0
+    var reps: Int = 0
+    var entry: ExerciseEntry?
+    
+    init(weight: Double, reps: Int) {
+        self.weight = weight
+        self.reps = reps
+    }
+}
