@@ -381,7 +381,7 @@ struct StatsBox: View {
                         .fontWeight(.medium)
                 }
                 
-                Text("\(Int(workoutPercentage))% days")
+                Text("\(Int(workoutPercentage))% days (\(workoutDaysCount)/\(totalDaysForCalculation))")
                     .font(.title3)
                     .fontWeight(.bold)
                 
@@ -405,6 +405,16 @@ struct StatsBox: View {
         guard totalDays > 0 else { return 0 }
         
         return Double(relevantWorkouts.count) / Double(totalDays) * 100
+    }
+    
+    private var workoutDaysCount: Int {
+        return workouts.filter { workout in
+            dateRange.contains(workout.date) && workout.didWorkout
+        }.count
+    }
+    
+    private var totalDaysForCalculation: Int {
+        return isCurrentMonth ? daysSinceStartOfMonth : daysInRange
     }
     
     private var weeksWithThreePlusWorkouts: Int {
