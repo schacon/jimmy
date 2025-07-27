@@ -279,7 +279,9 @@ struct EditExerciseEntryView: View {
     }
     
     private func loadSets() {
-        sets = entry.sets.map { ExerciseSetInput(weight: $0.weight, reps: $0.reps) }
+        if let entrySets = entry.sets {
+            sets = entrySets.map { ExerciseSetInput(weight: $0.weight, reps: $0.reps) }
+        }
         if sets.isEmpty {
             sets = [ExerciseSetInput()]
         }
@@ -295,17 +297,19 @@ struct EditExerciseEntryView: View {
     
     private func saveChanges() {
         // Remove existing sets
-        for set in entry.sets {
-            modelContext.delete(set)
+        if let existingSets = entry.sets {
+            for set in existingSets {
+                modelContext.delete(set)
+            }
         }
-        entry.sets.removeAll()
+        entry.sets = []
         
         // Add new sets
         for setInput in sets {
             if setInput.weight > 0 || setInput.reps > 0 {
                 let exerciseSet = ExerciseSet(weight: setInput.weight, reps: setInput.reps)
                 exerciseSet.entry = entry
-                entry.sets.append(exerciseSet)
+                entry.sets?.append(exerciseSet)
                 modelContext.insert(exerciseSet)
             }
         }

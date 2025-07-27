@@ -162,14 +162,14 @@ struct ExerciseEntryCard: View {
             }
             
             // Sets
-            if !entry.sets.isEmpty {
+            if let sets = entry.sets, !sets.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Sets")
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundColor(.secondary)
                     
-                    ForEach(Array(entry.sets.enumerated()), id: \.offset) { index, set in
+                    ForEach(Array(sets.enumerated()), id: \.offset) { index, set in
                         HStack {
                             Text("Set \(index + 1):")
                                 .font(.caption)

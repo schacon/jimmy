@@ -148,11 +148,16 @@ struct AddExerciseEntryView: View {
         let entry = ExerciseEntry(date: selectedDate, exercise: exercise)
         entry.notes = notes.isEmpty ? nil : notes
         
+        // Initialize sets array if nil
+        if entry.sets == nil {
+            entry.sets = []
+        }
+        
         for setInput in sets {
             if setInput.weight > 0 || setInput.reps > 0 {
                 let exerciseSet = ExerciseSet(weight: setInput.weight, reps: setInput.reps)
                 exerciseSet.entry = entry
-                entry.sets.append(exerciseSet)
+                entry.sets?.append(exerciseSet)
                 modelContext.insert(exerciseSet)
             }
         }

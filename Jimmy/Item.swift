@@ -25,10 +25,15 @@ final class Exercise {
     var category: String? = nil
     var dateCreated: Date = Date()
     
+    // Inverse relationship for CloudKit
+    @Relationship(deleteRule: .cascade, inverse: \ExerciseEntry.exercise)
+    var entries: [ExerciseEntry]? = []
+    
     init(name: String, category: String? = nil) {
         self.name = name
         self.category = category
         self.dateCreated = Date()
+        self.entries = []
     }
 }
 
@@ -36,13 +41,17 @@ final class Exercise {
 final class ExerciseEntry {
     var date: Date = Date()
     var exercise: Exercise?
-    var sets: [ExerciseSet] = []
     var notes: String? = nil
+    
+    // Make sets optional for CloudKit
+    @Relationship(deleteRule: .cascade, inverse: \ExerciseSet.entry)
+    var sets: [ExerciseSet]? = []
     
     init(date: Date, exercise: Exercise) {
         self.date = Calendar.current.startOfDay(for: date)
         self.exercise = exercise
         self.sets = []
+        self.notes = nil
     }
 }
 
