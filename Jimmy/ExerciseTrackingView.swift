@@ -15,6 +15,7 @@ struct ExerciseTrackingView: View {
     @State private var selectedDate = Date()
     @State private var showingAddExercise = false
     @State private var showingAddEntry = false
+    @State private var showingDatePicker = false
     
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -32,28 +33,62 @@ struct ExerciseTrackingView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
-                // Date Picker
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Select Date")
-                        .font(.headline)
+                // Current Date Display with Change Button
+                VStack(spacing: 12) {
+                    Text(dateFormatter.string(from: selectedDate))
+                        .font(.title2)
+                        .fontWeight(.semibold)
                     
-                    DatePicker(
-                        "Workout Date",
-                        selection: $selectedDate,
-                        in: ...Date(),
-                        displayedComponents: .date
-                    )
-                    .datePickerStyle(GraphicalDatePickerStyle())
-                    .frame(maxHeight: 300)
+                    Button(action: {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            showingDatePicker.toggle()
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "calendar")
+                            Text(showingDatePicker ? "Hide Calendar" : "Change Date")
+                        }
+                        .font(.subheadline)
+                        .foregroundColor(.blue)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(8)
+                    }
                 }
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(12)
                 
-                // Selected Date Display
-                Text(dateFormatter.string(from: selectedDate))
-                    .font(.title2)
-                    .fontWeight(.semibold)
+                // Collapsible Date Picker
+                if showingDatePicker {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Select Date")
+                            .font(.headline)
+                        
+                        DatePicker(
+                            "Workout Date",
+                            selection: Binding(
+                                get: { selectedDate },
+                                set: { newDate in
+                                    selectedDate = newDate
+                                    // Hide picker after selection
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        showingDatePicker = false
+                                    }
+                                }
+                            ),
+                            in: ...Date(),
+                            displayedComponents: .date
+                        )
+                        .datePickerStyle(GraphicalDatePickerStyle())
+                        .frame(maxHeight: 300)
+                    }
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(12)
+                    .transition(.asymmetric(
+                        insertion: .scale.combined(with: .opacity),
+                        removal: .scale.combined(with: .opacity)
+                    ))
+                }
                 
                 // Exercise Entries for Selected Date
                 VStack(alignment: .leading, spacing: 12) {
