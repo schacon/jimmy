@@ -10,8 +10,8 @@ import SwiftData
 
 @Model
 final class Workout {
-    var date: Date
-    var didWorkout: Bool
+    var date: Date = Date()
+    var didWorkout: Bool = false
     
     init(date: Date, didWorkout: Bool = false) {
         self.date = Calendar.current.startOfDay(for: date) // Store only the date part
