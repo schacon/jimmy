@@ -462,7 +462,7 @@ struct StatsBox: View {
         if workoutPercentage >= 50 {
             return .green
         } else if workoutPercentage >= 40 {
-            return .orange
+            return .blue
         } else if workoutPercentage >= 20 {
             return .yellow
         } else {
