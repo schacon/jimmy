@@ -125,7 +125,14 @@ struct ContentView: View {
     
     private var last6MonthsRange: ClosedRange<Date> {
         let endDate = Date()
-        let startDate = calendar.date(byAdding: .month, value: -6, to: endDate) ?? endDate
+        let sixMonthsAgo = calendar.date(byAdding: .month, value: -6, to: endDate) ?? endDate
+        
+        // Find the first date we have any workout data
+        let firstWorkoutDate = workouts.map { $0.date }.min()
+        
+        // Use the later of: first workout date or 6 months ago
+        let startDate = [firstWorkoutDate, sixMonthsAgo].compactMap { $0 }.max() ?? sixMonthsAgo
+        
         return startDate...endDate
     }
     
