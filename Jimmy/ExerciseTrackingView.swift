@@ -226,29 +226,7 @@ struct ExerciseEntryCard: View {
                 }
             }
             
-            // Sets
-            if let sets = entry.sets, !sets.isEmpty {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Sets")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundColor(.secondary)
-                    
-                    ForEach(Array(sets.enumerated()), id: \.offset) { index, set in
-                        HStack {
-                            Text("Set \(index + 1):")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                            
-                            Text("\(Int(set.weight)) lbs × \(set.reps) reps")
-                                .font(.body)
-                                .fontWeight(.medium)
-                            
-                            Spacer()
-                        }
-                    }
-                }
-            }
+
             
             // Notes
             if let notes = entry.notes, !notes.isEmpty {
