@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import Foundation
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
@@ -87,6 +88,9 @@ struct ContentView: View {
             .padding(.bottom, 40)
         }
         .background(Color(.systemBackground))
+        .onAppear {
+            exportWorkoutsToJSON()
+        }
     }
     
     private func previousMonth() {
@@ -121,6 +125,57 @@ struct ContentView: View {
         }
         
         try? modelContext.save()
+        
+        // Export to JSON after data changes
+        exportWorkoutsToJSON()
+    }
+    
+    private func exportWorkoutsToJSON() {
+        Task {
+            await saveWorkoutsToiCloudDrive()
+        }
+    }
+    
+    private func saveWorkoutsToiCloudDrive() async {
+        guard let iCloudURL = FileManager.default.url(forUbiquityContainerIdentifier: "iCloud.com.chacons.Jimmy") else {
+            print("iCloud Drive not available")
+            return
+        }
+        
+        // Create Jimmy folder in iCloud Drive
+        let jimmyFolderURL = iCloudURL.appendingPathComponent("Documents/Jimmy")
+        let workoutsFileURL = jimmyFolderURL.appendingPathComponent("workouts.json")
+        
+        do {
+            // Create directory if it doesn't exist
+            try FileManager.default.createDirectory(at: jimmyFolderURL, withIntermediateDirectories: true, attributes: nil)
+            
+            // Convert workouts to JSON format
+            let workoutDates = workouts.filter { $0.didWorkout }.map { workout in
+                WorkoutExport(date: workout.date, didWorkout: workout.didWorkout)
+            }
+            
+            let exportData = WorkoutExportContainer(
+                exportDate: Date(),
+                totalWorkouts: workoutDates.count,
+                workouts: workoutDates
+            )
+            
+            // Encode to JSON
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .iso8601
+            encoder.outputFormatting = .prettyPrinted
+            
+            let jsonData = try encoder.encode(exportData)
+            
+            // Write to iCloud Drive
+            try jsonData.write(to: workoutsFileURL)
+            
+            print("✅ Workouts exported to iCloud Drive: Jimmy/workouts.json")
+            
+        } catch {
+            print("❌ Failed to export workouts to iCloud Drive: \(error)")
+        }
     }
     
     private var last6MonthsRange: ClosedRange<Date> {
@@ -519,6 +574,18 @@ enum WorkoutStatus {
     case didNotWork
     case noData
     case future
+}
+
+// MARK: - JSON Export Structures
+struct WorkoutExport: Codable {
+    let date: Date
+    let didWorkout: Bool
+}
+
+struct WorkoutExportContainer: Codable {
+    let exportDate: Date
+    let totalWorkouts: Int
+    let workouts: [WorkoutExport]
 }
 
 #Preview {
