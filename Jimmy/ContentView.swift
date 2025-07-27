@@ -137,8 +137,8 @@ struct ContentView: View {
     }
     
     private func saveWorkoutsToiCloudDrive() async {
-        guard let iCloudURL = FileManager.default.url(forUbiquityContainerIdentifier: "iCloud.com.chacons.Jimmy") else {
-            print("iCloud Drive not available")
+        guard let iCloudURL = FileManager.default.url(forUbiquityContainerIdentifier: nil) else {
+            print("iCloud Drive not available - enable it in Xcode Capabilities")
             return
         }
         
