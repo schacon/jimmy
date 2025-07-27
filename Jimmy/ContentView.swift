@@ -376,7 +376,7 @@ struct StatsBox: View {
                     Image(systemName: "calendar.badge.checkmark")
                         .foregroundColor(.blue)
                         .font(.caption)
-                    Text("\(weeksWithThreePlusWorkouts) weeks")
+                    Text("\(weeksWithThreePlusWorkouts)/\(totalWeeksInRange) weeks")
                         .font(.caption2)
                         .fontWeight(.medium)
                 }
@@ -421,6 +421,14 @@ struct StatsBox: View {
         }
         
         return weeklyWorkouts.values.filter { $0 >= 3 }.count
+    }
+    
+    private var totalWeeksInRange: Int {
+        let startDate = dateRange.lowerBound
+        let endDate = min(dateRange.upperBound, Date()) // Don't count future weeks
+        
+        let weeksBetween = calendar.dateComponents([.weekOfYear], from: startDate, to: endDate).weekOfYear ?? 0
+        return max(1, weeksBetween + 1) // +1 because we include partial weeks
     }
     
     private var daysInRange: Int {
