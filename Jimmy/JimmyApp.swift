@@ -19,6 +19,7 @@ struct JimmyApp: App {
             Exercise.self,
             ExerciseEntry.self,
             ExerciseSet.self,
+            AppSettings.self,
         ])
         
         // Try CloudKit first, fallback to local storage if it fails

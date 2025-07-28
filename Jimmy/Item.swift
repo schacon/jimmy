@@ -42,6 +42,21 @@ final class SaunaDay {
 }
 
 @Model
+final class AppSettings {
+    var showDrinksTab: Bool = true
+    var showSaunaTab: Bool = true
+    var showGymTab: Bool = true
+    var showExercisesTab: Bool = true
+    
+    init() {
+        self.showDrinksTab = true
+        self.showSaunaTab = true
+        self.showGymTab = true
+        self.showExercisesTab = true
+    }
+}
+
+@Model
 final class Exercise {
     var name: String = ""
     var category: String? = nil

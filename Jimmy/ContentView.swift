@@ -10,30 +10,59 @@ import SwiftData
 import Foundation
 
 struct ContentView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query private var settings: [AppSettings]
+    
+    private var appSettings: AppSettings {
+        if let existingSettings = settings.first {
+            return existingSettings
+        } else {
+            // Create default settings if none exist
+            let newSettings = AppSettings()
+            modelContext.insert(newSettings)
+            try? modelContext.save()
+            return newSettings
+        }
+    }
+    
     var body: some View {
         TabView {
-            DrinksCalendarView()
-                .tabItem {
-                    Image(systemName: "wineglass")
-                    Text("Drinks")
-                }
+            if appSettings.showDrinksTab {
+                DrinksCalendarView()
+                    .tabItem {
+                        Image(systemName: "wineglass")
+                        Text("Drinks")
+                    }
+            }
             
-            SaunaCalendarView()
-                .tabItem {
-                    Image(systemName: "thermometer.medium")
-                    Text("Sauna")
-                }
+            if appSettings.showSaunaTab {
+                SaunaCalendarView()
+                    .tabItem {
+                        Image(systemName: "thermometer.medium")
+                        Text("Sauna")
+                    }
+            }
             
-            WorkoutCalendarView()
-                .tabItem {
-                    Image(systemName: "dumbbell.fill")
-                    Text("Gym")
-                }
+            if appSettings.showGymTab {
+                WorkoutCalendarView()
+                    .tabItem {
+                        Image(systemName: "dumbbell.fill")
+                        Text("Gym")
+                    }
+            }
             
-            ExerciseTrackingView()
+            if appSettings.showExercisesTab {
+                ExerciseTrackingView()
+                    .tabItem {
+                        Image(systemName: "list.bullet")
+                        Text("Exercises")
+                    }
+            }
+            
+            SettingsView()
                 .tabItem {
-                    Image(systemName: "list.bullet")
-                    Text("Exercises")
+                    Image(systemName: "gear")
+                    Text("Settings")
                 }
         }
     }
@@ -1764,6 +1793,138 @@ struct SaunaDayExportContainer: Codable {
     let exportDate: Date
     let totalSaunaDays: Int
     let saunaDays: [SaunaDayExport]
+}
+
+struct SettingsView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query private var settings: [AppSettings]
+    
+    private var appSettings: AppSettings {
+        if let existingSettings = settings.first {
+            return existingSettings
+        } else {
+            // Create default settings if none exist
+            let newSettings = AppSettings()
+            modelContext.insert(newSettings)
+            try? modelContext.save()
+            return newSettings
+        }
+    }
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Visible Tabs")) {
+                    Toggle(isOn: Binding(
+                        get: { appSettings.showDrinksTab },
+                        set: { newValue in
+                            appSettings.showDrinksTab = newValue
+                            try? modelContext.save()
+                        }
+                    )) {
+                        HStack {
+                            Image(systemName: "wineglass")
+                                .foregroundColor(.green)
+                                .frame(width: 20)
+                            Text("Drinks")
+                        }
+                    }
+                    
+                    Toggle(isOn: Binding(
+                        get: { appSettings.showSaunaTab },
+                        set: { newValue in
+                            appSettings.showSaunaTab = newValue
+                            try? modelContext.save()
+                        }
+                    )) {
+                        HStack {
+                            Image(systemName: "thermometer.medium")
+                                .foregroundColor(.orange)
+                                .frame(width: 20)
+                            Text("Sauna")
+                        }
+                    }
+                    
+                    Toggle(isOn: Binding(
+                        get: { appSettings.showGymTab },
+                        set: { newValue in
+                            appSettings.showGymTab = newValue
+                            try? modelContext.save()
+                        }
+                    )) {
+                        HStack {
+                            Image(systemName: "dumbbell.fill")
+                                .foregroundColor(.blue)
+                                .frame(width: 20)
+                            Text("Gym")
+                        }
+                    }
+                    
+                    Toggle(isOn: Binding(
+                        get: { appSettings.showExercisesTab },
+                        set: { newValue in
+                            appSettings.showExercisesTab = newValue
+                            try? modelContext.save()
+                        }
+                    )) {
+                        HStack {
+                            Image(systemName: "list.bullet")
+                                .foregroundColor(.purple)
+                                .frame(width: 20)
+                            Text("Exercises")
+                        }
+                    }
+                }
+                
+                Section(header: Text("About")) {
+                    HStack {
+                        Text("App Version")
+                        Spacer()
+                        Text("1.0.0")
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    HStack {
+                        Text("Data Storage")
+                        Spacer()
+                        Text("iCloud + Local")
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                Section(header: Text("Data")) {
+                    Button(action: {
+                        // Could add export functionality here
+                    }) {
+                        HStack {
+                            Image(systemName: "square.and.arrow.up")
+                                .foregroundColor(.blue)
+                            Text("Export Data")
+                        }
+                    }
+                    
+                    Button(action: {
+                        resetAllData()
+                    }) {
+                        HStack {
+                            Image(systemName: "trash")
+                                .foregroundColor(.red)
+                            Text("Reset All Data")
+                                .foregroundColor(.red)
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.large)
+        }
+    }
+    
+    private func resetAllData() {
+        // Show confirmation alert before resetting
+        // For now, this is a placeholder
+        print("Reset all data functionality would go here")
+    }
 }
 
 #Preview {
