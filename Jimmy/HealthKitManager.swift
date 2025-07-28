@@ -88,7 +88,7 @@ class HealthKitManager {
 
     let calendar = Calendar.current
     let endDate = Date()
-    let startDate = calendar.date(byAdding: .day, value: -14, to: endDate) ?? endDate
+    let startDate = calendar.date(byAdding: .day, value: -30, to: endDate) ?? endDate
 
     let predicate = HKQuery.predicateForSamples(
       withStart: startDate, end: endDate, options: .strictStartDate)
@@ -145,15 +145,15 @@ class HealthKitManager {
 
     let calendar = Calendar.current
     let endDate = Date()
-    let startDate = calendar.date(byAdding: .day, value: -14, to: endDate) ?? endDate
+    let startDate = calendar.date(byAdding: .day, value: -30, to: endDate) ?? endDate
 
     // Create daily intervals for step count aggregation
     var dailySteps: [HealthDataPoint] = []
 
-    for i in 0..<14 {
+    for i in 0..<30 {
       guard
         let dayStart = calendar.date(
-          byAdding: .day, value: -13 + i, to: calendar.startOfDay(for: endDate)),
+          byAdding: .day, value: -29 + i, to: calendar.startOfDay(for: endDate)),
         let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)
       else { continue }
 
@@ -200,7 +200,7 @@ class HealthKitManager {
       weeklyAverageWeight =
         last7DaysWeight.map { $0.value }.reduce(0, +) / Double(last7DaysWeight.count)
     }
-    
+
     // Calculate average weight for previous 7 days (last week)
     if weightData.count >= 14 {
       let lastWeekWeight = Array(weightData.dropLast(7).suffix(7))
