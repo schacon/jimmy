@@ -9,9 +9,19 @@ import SwiftUI
 import SwiftData
 import Foundation
 
+enum AppTab: String, CaseIterable {
+    case home = "home"
+    case drinks = "drinks"
+    case sauna = "sauna"
+    case gym = "gym"
+    case exercises = "exercises"
+    case settings = "settings"
+}
+
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var settings: [AppSettings]
+    @State private var selectedTab: AppTab = .home
     
     private var appSettings: AppSettings {
         if let existingSettings = settings.first {
@@ -26,13 +36,23 @@ struct ContentView: View {
     }
     
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
+            if appSettings.showHomeTab {
+                HomeView(selectedTab: $selectedTab)
+                    .tabItem {
+                        Image(systemName: "house.fill")
+                        Text("Home")
+                    }
+                    .tag(AppTab.home)
+            }
+            
             if appSettings.showDrinksTab {
                 DrinksCalendarView()
                     .tabItem {
                         Image(systemName: "wineglass")
                         Text("Drinks")
                     }
+                    .tag(AppTab.drinks)
             }
             
             if appSettings.showSaunaTab {
@@ -41,6 +61,7 @@ struct ContentView: View {
                         Image(systemName: "thermometer.medium")
                         Text("Sauna")
                     }
+                    .tag(AppTab.sauna)
             }
             
             if appSettings.showGymTab {
@@ -49,6 +70,7 @@ struct ContentView: View {
                         Image(systemName: "dumbbell.fill")
                         Text("Gym")
                     }
+                    .tag(AppTab.gym)
             }
             
             if appSettings.showExercisesTab {
@@ -57,6 +79,7 @@ struct ContentView: View {
                         Image(systemName: "list.bullet")
                         Text("Exercises")
                     }
+                    .tag(AppTab.exercises)
             }
             
             SettingsView()
@@ -64,7 +87,255 @@ struct ContentView: View {
                     Image(systemName: "gear")
                     Text("Settings")
                 }
+                .tag(AppTab.settings)
         }
+        .onAppear {
+            // Set initial tab to first available tab if home is disabled
+            if !appSettings.showHomeTab {
+                if appSettings.showDrinksTab {
+                    selectedTab = .drinks
+                } else if appSettings.showSaunaTab {
+                    selectedTab = .sauna
+                } else if appSettings.showGymTab {
+                    selectedTab = .gym
+                } else if appSettings.showExercisesTab {
+                    selectedTab = .exercises
+                } else {
+                    selectedTab = .settings
+                }
+            }
+        }
+    }
+}
+
+struct HomeView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query private var settings: [AppSettings]
+    @Query private var workouts: [Workout]
+    @Query private var drinkDays: [DrinkDay]
+    @Query private var saunaDays: [SaunaDay]
+    @Query private var exerciseEntries: [ExerciseEntry]
+    @Binding var selectedTab: AppTab
+    
+    private var appSettings: AppSettings {
+        if let existingSettings = settings.first {
+            return existingSettings
+        } else {
+            let newSettings = AppSettings()
+            modelContext.insert(newSettings)
+            try? modelContext.save()
+            return newSettings
+        }
+    }
+    
+    private let calendar = Calendar.current
+    
+    private var last4WeeksRange: ClosedRange<Date> {
+        let endDate = Date()
+        let startDate = calendar.date(byAdding: .day, value: -28, to: endDate) ?? endDate
+        return startDate...endDate
+    }
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Header
+                    VStack(spacing: 8) {
+                        Text("Last 4 Weeks")
+                            .font(.title)
+                            .fontWeight(.bold)
+                        
+                        Text("Tap any area to view details")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.top)
+                    
+                    // Overview Cards
+                    LazyVGrid(columns: [
+                        GridItem(.flexible()),
+                        GridItem(.flexible())
+                    ], spacing: 16) {
+                        
+                        if appSettings.showDrinksTab {
+                            OverviewCard(
+                                title: "Drinks",
+                                subtitle: "Alcohol-free days",
+                                icon: "wineglass",
+                                color: .green,
+                                percentage: drinkFreePercentage,
+                                count: drinkFreeDaysCount,
+                                total: totalDaysInRange,
+                                action: {
+                                    selectedTab = .drinks
+                                }
+                            )
+                        }
+                        
+                        if appSettings.showSaunaTab {
+                            OverviewCard(
+                                title: "Sauna",
+                                subtitle: "Sauna sessions",
+                                icon: "thermometer.medium",
+                                color: .orange,
+                                percentage: saunaPercentage,
+                                count: saunaDaysCount,
+                                total: totalDaysInRange,
+                                action: {
+                                    selectedTab = .sauna
+                                }
+                            )
+                        }
+                        
+                        if appSettings.showGymTab {
+                            OverviewCard(
+                                title: "Gym",
+                                subtitle: "Workout days",
+                                icon: "dumbbell.fill",
+                                color: .blue,
+                                percentage: workoutPercentage,
+                                count: workoutDaysCount,
+                                total: totalDaysInRange,
+                                action: {
+                                    selectedTab = .gym
+                                }
+                            )
+                        }
+                        
+                        if appSettings.showExercisesTab {
+                            OverviewCard(
+                                title: "Exercises",
+                                subtitle: "Detailed workouts",
+                                icon: "list.bullet",
+                                color: .purple,
+                                percentage: exercisePercentage,
+                                count: exerciseEntriesCount,
+                                total: totalDaysInRange,
+                                action: {
+                                    selectedTab = .exercises
+                                }
+                            )
+                        }
+                    }
+                    .padding(.horizontal)
+                    
+                    Spacer(minLength: 40)
+                }
+            }
+            .navigationTitle("Overview")
+            .navigationBarTitleDisplayMode(.large)
+        }
+    }
+    
+    // MARK: - Computed Properties for Stats
+    
+    private var totalDaysInRange: Int {
+        calendar.dateComponents([.day], from: last4WeeksRange.lowerBound, to: last4WeeksRange.upperBound).day ?? 28
+    }
+    
+    private var drinkFreeDaysCount: Int {
+        drinkDays.filter { day in
+            last4WeeksRange.contains(day.date) && day.didNotDrink
+        }.count
+    }
+    
+    private var drinkFreePercentage: Double {
+        guard totalDaysInRange > 0 else { return 0 }
+        return Double(drinkFreeDaysCount) / Double(totalDaysInRange) * 100
+    }
+    
+    private var saunaDaysCount: Int {
+        saunaDays.filter { day in
+            last4WeeksRange.contains(day.date) && day.didSauna
+        }.count
+    }
+    
+    private var saunaPercentage: Double {
+        guard totalDaysInRange > 0 else { return 0 }
+        return Double(saunaDaysCount) / Double(totalDaysInRange) * 100
+    }
+    
+    private var workoutDaysCount: Int {
+        workouts.filter { workout in
+            last4WeeksRange.contains(workout.date) && workout.didWorkout
+        }.count
+    }
+    
+    private var workoutPercentage: Double {
+        guard totalDaysInRange > 0 else { return 0 }
+        return Double(workoutDaysCount) / Double(totalDaysInRange) * 100
+    }
+    
+    private var exerciseEntriesCount: Int {
+        exerciseEntries.filter { entry in
+            last4WeeksRange.contains(entry.date)
+        }.count
+    }
+    
+    private var exercisePercentage: Double {
+        guard totalDaysInRange > 0 else { return 0 }
+        return Double(exerciseEntriesCount) / Double(totalDaysInRange) * 100
+    }
+}
+
+struct OverviewCard: View {
+    let title: String
+    let subtitle: String
+    let icon: String
+    let color: Color
+    let percentage: Double
+    let count: Int
+    let total: Int
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 12) {
+                // Icon and Title
+                VStack(spacing: 6) {
+                    Image(systemName: icon)
+                        .font(.title2)
+                        .foregroundColor(color)
+                    
+                    Text(title)
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                }
+                
+                // Stats
+                VStack(spacing: 4) {
+                    Text("\(Int(percentage))%")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundColor(color)
+                    
+                    Text("\(count)/\(total) days")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    Text(subtitle)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                
+                // Progress Bar
+                ProgressView(value: percentage / 100)
+                    .progressViewStyle(LinearProgressViewStyle(tint: color))
+                    .scaleEffect(y: 0.6)
+            }
+            .padding()
+            .frame(height: 140)
+            .background(Color(.systemGray6))
+            .cornerRadius(16)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(color.opacity(0.3), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -1823,6 +2094,21 @@ struct SettingsView: View {
             Form {
                 Section(header: Text("Visible Tabs")) {
                     Toggle(isOn: Binding(
+                        get: { appSettings.showHomeTab },
+                        set: { newValue in
+                            appSettings.showHomeTab = newValue
+                            try? modelContext.save()
+                        }
+                    )) {
+                        HStack {
+                            Image(systemName: "house.fill")
+                                .foregroundColor(.blue)
+                                .frame(width: 20)
+                            Text("Home")
+                        }
+                    }
+                    
+                    Toggle(isOn: Binding(
                         get: { appSettings.showDrinksTab },
                         set: { newValue in
                             appSettings.showDrinksTab = newValue
@@ -1928,6 +2214,7 @@ struct SettingsView: View {
                     exportDate: Date(),
                     appVersion: "1.0.0",
                     settings: ComprehensiveExport.SettingsExport(
+                        showHomeTab: appSettings.showHomeTab,
                         showDrinksTab: appSettings.showDrinksTab,
                         showSaunaTab: appSettings.showSaunaTab,
                         showGymTab: appSettings.showGymTab,
@@ -2029,6 +2316,7 @@ struct ComprehensiveExport: Codable {
     let exerciseEntries: [ExerciseEntryExport]
     
     struct SettingsExport: Codable {
+        let showHomeTab: Bool
         let showDrinksTab: Bool
         let showSaunaTab: Bool
         let showGymTab: Bool

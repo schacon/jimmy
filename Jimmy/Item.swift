@@ -43,12 +43,14 @@ final class SaunaDay {
 
 @Model
 final class AppSettings {
+    var showHomeTab: Bool = true
     var showDrinksTab: Bool = true
     var showSaunaTab: Bool = true
     var showGymTab: Bool = true
     var showExercisesTab: Bool = true
     
     init() {
+        self.showHomeTab = true
         self.showDrinksTab = true
         self.showSaunaTab = true
         self.showGymTab = true
