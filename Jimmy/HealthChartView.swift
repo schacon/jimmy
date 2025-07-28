@@ -56,34 +56,34 @@ struct HealthDataCard: View {
           .foregroundColor(color)
       }
 
-                    // Mini Chart
-       if !data.isEmpty {
-         if let domain = yAxisDomain {
-           Chart(data, id: \.date) { dataPoint in
-             BarMark(
-               x: .value("Date", dataPoint.date),
-               y: .value("Value", dataPoint.value)
-             )
-             .foregroundStyle(color)
-             .cornerRadius(2)
-           }
-           .chartXAxis(.hidden)
-           .chartYAxis(.hidden)
-           .chartYScale(domain: domain)
-           .frame(height: 60)
-         } else {
-           Chart(data, id: \.date) { dataPoint in
-             BarMark(
-               x: .value("Date", dataPoint.date),
-               y: .value("Value", dataPoint.value)
-             )
-             .foregroundStyle(color)
-             .cornerRadius(2)
-           }
-           .chartXAxis(.hidden)
-           .chartYAxis(.hidden)
-           .frame(height: 60)
-         }
+      // Mini Chart
+      if !data.isEmpty {
+        if let domain = yAxisDomain {
+          Chart(data, id: \.date) { dataPoint in
+            BarMark(
+              x: .value("Date", dataPoint.date),
+              y: .value("Value", dataPoint.value)
+            )
+            .foregroundStyle(color)
+            .cornerRadius(2)
+          }
+          .chartXAxis(.hidden)
+          .chartYAxis(.hidden)
+          .chartYScale(domain: domain)
+          .frame(height: 60)
+        } else {
+          Chart(data, id: \.date) { dataPoint in
+            BarMark(
+              x: .value("Date", dataPoint.date),
+              y: .value("Value", dataPoint.value)
+            )
+            .foregroundStyle(color)
+            .cornerRadius(2)
+          }
+          .chartXAxis(.hidden)
+          .chartYAxis(.hidden)
+          .frame(height: 60)
+        }
       } else {
         Rectangle()
           .fill(Color.gray.opacity(0.1))
@@ -147,54 +147,54 @@ struct DetailedHealthChartView: View {
         Spacer()
       }
 
-             if !data.isEmpty {
-         // Chart
-         if let domain = yAxisDomain {
-           Chart(data, id: \.date) { dataPoint in
-             BarMark(
-               x: .value("Date", dataPoint.date),
-               y: .value("Value", dataPoint.value)
-             )
-             .foregroundStyle(color)
-             .cornerRadius(4)
-           }
-           .chartXAxis {
-             AxisMarks(values: .stride(by: .day, count: 2)) { _ in
-               AxisValueLabel(format: .dateTime.month(.abbreviated).day())
-                 .foregroundStyle(.secondary)
-             }
-           }
-           .chartYAxis {
-             AxisMarks { _ in
-               AxisValueLabel()
-                 .foregroundStyle(.secondary)
-             }
-           }
-           .chartYScale(domain: domain)
-           .frame(height: 200)
-         } else {
-           Chart(data, id: \.date) { dataPoint in
-             BarMark(
-               x: .value("Date", dataPoint.date),
-               y: .value("Value", dataPoint.value)
-             )
-             .foregroundStyle(color)
-             .cornerRadius(4)
-           }
-           .chartXAxis {
-             AxisMarks(values: .stride(by: .day, count: 2)) { _ in
-               AxisValueLabel(format: .dateTime.month(.abbreviated).day())
-                 .foregroundStyle(.secondary)
-             }
-           }
-           .chartYAxis {
-             AxisMarks { _ in
-               AxisValueLabel()
-                 .foregroundStyle(.secondary)
-             }
-           }
-           .frame(height: 200)
-         }
+      if !data.isEmpty {
+        // Chart
+        if let domain = yAxisDomain {
+          Chart(data, id: \.date) { dataPoint in
+            BarMark(
+              x: .value("Date", dataPoint.date),
+              y: .value("Value", dataPoint.value)
+            )
+            .foregroundStyle(color)
+            .cornerRadius(4)
+          }
+          .chartXAxis {
+            AxisMarks(values: .stride(by: .day, count: 2)) { _ in
+              AxisValueLabel(format: .dateTime.month(.abbreviated).day())
+                .foregroundStyle(.secondary)
+            }
+          }
+          .chartYAxis {
+            AxisMarks { _ in
+              AxisValueLabel()
+                .foregroundStyle(.secondary)
+            }
+          }
+          .chartYScale(domain: domain)
+          .frame(height: 200)
+        } else {
+          Chart(data, id: \.date) { dataPoint in
+            BarMark(
+              x: .value("Date", dataPoint.date),
+              y: .value("Value", dataPoint.value)
+            )
+            .foregroundStyle(color)
+            .cornerRadius(4)
+          }
+          .chartXAxis {
+            AxisMarks(values: .stride(by: .day, count: 2)) { _ in
+              AxisValueLabel(format: .dateTime.month(.abbreviated).day())
+                .foregroundStyle(.secondary)
+            }
+          }
+          .chartYAxis {
+            AxisMarks { _ in
+              AxisValueLabel()
+                .foregroundStyle(.secondary)
+            }
+          }
+          .frame(height: 200)
+        }
 
         // Stats
         HStack {

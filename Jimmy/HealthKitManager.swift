@@ -107,12 +107,26 @@ class HealthKitManager {
         }
 
         let weightUnit = HKUnit.gramUnit(with: .kilo)
-        let dataPoints = samples.map { sample in
-          HealthDataPoint(
-            date: sample.startDate,
-            value: sample.quantity.doubleValue(for: weightUnit)
-          )
+        let calendar = Calendar.current
+        
+        // Group samples by day and find minimum weight per day
+        var dailyWeights: [Date: Double] = [:]
+        
+        for sample in samples {
+          let dayStart = calendar.startOfDay(for: sample.startDate)
+          let weight = sample.quantity.doubleValue(for: weightUnit)
+          
+          if let existingWeight = dailyWeights[dayStart] {
+            dailyWeights[dayStart] = min(existingWeight, weight)
+          } else {
+            dailyWeights[dayStart] = weight
+          }
         }
+        
+        // Convert to HealthDataPoint array, sorted by date
+        let dataPoints = dailyWeights.map { (date, minWeight) in
+          HealthDataPoint(date: date, value: minWeight)
+        }.sorted { $0.date < $1.date }
 
         DispatchQueue.main.async {
           self?.weightData = dataPoints
