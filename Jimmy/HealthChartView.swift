@@ -153,7 +153,7 @@ struct DetailedHealthChartView: View {
                         Text("Latest")
                             .font(.caption)
                             .foregroundColor(.secondary)
-                        Text("\(data.last?.value ?? 0, specifier: "%.1f") \(unit)")
+                        Text(String(format: "%.1f %@", data.last?.value ?? 0, unit))
                             .font(.headline)
                             .fontWeight(.semibold)
                     }
@@ -165,7 +165,7 @@ struct DetailedHealthChartView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                         let avg = data.suffix(7).map { $0.value }.reduce(0, +) / Double(min(7, data.count))
-                        Text("\(avg, specifier: "%.1f") \(unit)")
+                        Text(String(format: "%.1f %@", avg, unit))
                             .font(.headline)
                             .fontWeight(.semibold)
                     }
