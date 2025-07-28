@@ -1909,17 +1909,6 @@ struct SettingsView: View {
                             Text("Export Data")
                         }
                     }
-                    
-                    Button(action: {
-                        resetAllData()
-                    }) {
-                        HStack {
-                            Image(systemName: "trash")
-                                .foregroundColor(.red)
-                            Text("Reset All Data")
-                                .foregroundColor(.red)
-                        }
-                    }
                 }
             }
             .navigationTitle("Settings")
@@ -2015,11 +2004,7 @@ struct SettingsView: View {
         return formatter.string(from: Date())
     }
     
-    private func resetAllData() {
-        // Show confirmation alert before resetting
-        // For now, this is a placeholder
-        print("Reset all data functionality would go here")
-    }
+
 }
 
 struct ShareSheet: UIViewControllerRepresentable {
