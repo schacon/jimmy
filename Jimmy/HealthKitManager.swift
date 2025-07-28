@@ -16,6 +16,7 @@ class HealthKitManager {
   var weightData: [HealthDataPoint] = []
   var stepsData: [HealthDataPoint] = []
   var weeklyAverageWeight: Double = 0
+  var lastWeekAverageWeight: Double = 0
   var weeklyAverageSteps: Double = 0
 
   struct HealthDataPoint {
@@ -108,21 +109,21 @@ class HealthKitManager {
 
         let weightUnit = HKUnit.gramUnit(with: .kilo)
         let calendar = Calendar.current
-        
+
         // Group samples by day and find minimum weight per day
         var dailyWeights: [Date: Double] = [:]
-        
+
         for sample in samples {
           let dayStart = calendar.startOfDay(for: sample.startDate)
           let weight = sample.quantity.doubleValue(for: weightUnit)
-          
+
           if let existingWeight = dailyWeights[dayStart] {
             dailyWeights[dayStart] = min(existingWeight, weight)
           } else {
             dailyWeights[dayStart] = weight
           }
         }
-        
+
         // Convert to HealthDataPoint array, sorted by date
         let dataPoints = dailyWeights.map { (date, minWeight) in
           HealthDataPoint(date: date, value: minWeight)
@@ -193,11 +194,27 @@ class HealthKitManager {
   }
 
   private func calculateWeeklyAverages() {
-    // Calculate average weight for last 7 days
+    // Calculate average weight for last 7 days (this week)
     let last7DaysWeight = weightData.suffix(7)
     if !last7DaysWeight.isEmpty {
       weeklyAverageWeight =
         last7DaysWeight.map { $0.value }.reduce(0, +) / Double(last7DaysWeight.count)
+    }
+    
+    // Calculate average weight for previous 7 days (last week)
+    if weightData.count >= 14 {
+      let lastWeekWeight = Array(weightData.dropLast(7).suffix(7))
+      if !lastWeekWeight.isEmpty {
+        lastWeekAverageWeight =
+          lastWeekWeight.map { $0.value }.reduce(0, +) / Double(lastWeekWeight.count)
+      }
+    } else if weightData.count > 7 {
+      // If we have some data for last week but not a full 7 days
+      let lastWeekWeight = Array(weightData.dropLast(7))
+      if !lastWeekWeight.isEmpty {
+        lastWeekAverageWeight =
+          lastWeekWeight.map { $0.value }.reduce(0, +) / Double(lastWeekWeight.count)
+      }
     }
 
     // Calculate average steps for last 7 days

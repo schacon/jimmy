@@ -219,7 +219,9 @@ struct HomeView: View {
                   title: "Weight",
                   value: healthKitManager.weeklyAverageWeight > 0
                     ? String(format: "%.1f kg", healthKitManager.weeklyAverageWeight) : "--",
-                  subtitle: "Weekly average",
+                  subtitle: healthKitManager.lastWeekAverageWeight > 0
+                    ? String(format: "This week • Last week: %.1f kg", healthKitManager.lastWeekAverageWeight)
+                    : "Weekly average",
                   icon: "scalemass",
                   color: .pink,
                   data: healthKitManager.weightData
