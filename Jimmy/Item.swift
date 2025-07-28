@@ -31,6 +31,17 @@ final class DrinkDay {
 }
 
 @Model
+final class SaunaDay {
+    var date: Date = Date()
+    var didSauna: Bool = false
+    
+    init(date: Date, didSauna: Bool = false) {
+        self.date = Calendar.current.startOfDay(for: date) // Store only the date part
+        self.didSauna = didSauna
+    }
+}
+
+@Model
 final class Exercise {
     var name: String = ""
     var category: String? = nil

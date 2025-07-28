@@ -15,6 +15,7 @@ struct JimmyApp: App {
         let schema = Schema([
             Workout.self,
             DrinkDay.self,
+            SaunaDay.self,
             Exercise.self,
             ExerciseEntry.self,
             ExerciseSet.self,
