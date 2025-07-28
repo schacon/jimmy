@@ -176,7 +176,7 @@ struct HomeView: View {
                         .padding(.horizontal)
                         
                         if healthKitManager.isAuthorized {
-                            HStack(spacing: 16) {
+                            VStack(spacing: 12) {
                                 // Weight Card
                                 HealthDataCard(
                                     title: "Weight",
@@ -233,10 +233,7 @@ struct HomeView: View {
                     .padding(.top, 20)
                     
                     // Overview Cards
-                    LazyVGrid(columns: [
-                        GridItem(.flexible()),
-                        GridItem(.flexible())
-                    ], spacing: 16) {
+                    VStack(spacing: 12) {
                         
                         if appSettings.showDrinksTab {
                             OverviewCard(
@@ -383,43 +380,45 @@ struct OverviewCard: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 12) {
-                // Icon and Title
-                VStack(spacing: 6) {
-                    Image(systemName: icon)
-                        .font(.title2)
-                        .foregroundColor(color)
-                    
+            HStack(spacing: 16) {
+                // Icon
+                Image(systemName: icon)
+                    .font(.title)
+                    .foregroundColor(color)
+                    .frame(width: 40, height: 40)
+                
+                // Content
+                VStack(alignment: .leading, spacing: 4) {
                     Text(title)
                         .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
+                    
+                    Text(subtitle)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    // Progress Bar
+                    ProgressView(value: percentage / 100)
+                        .progressViewStyle(LinearProgressViewStyle(tint: color))
+                        .frame(height: 6)
                 }
                 
+                Spacer()
+                
                 // Stats
-                VStack(spacing: 4) {
+                VStack(alignment: .trailing, spacing: 2) {
                     Text("\(Int(percentage))%")
-                        .font(.title)
+                        .font(.title2)
                         .fontWeight(.bold)
                         .foregroundColor(color)
                     
                     Text("\(count)/\(total) days")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    
-                    Text(subtitle)
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
                 }
-                
-                // Progress Bar
-                ProgressView(value: percentage / 100)
-                    .progressViewStyle(LinearProgressViewStyle(tint: color))
-                    .scaleEffect(y: 0.6)
             }
             .padding()
-            .frame(height: 140)
             .background(Color(.systemGray6))
             .cornerRadius(16)
             .overlay(
