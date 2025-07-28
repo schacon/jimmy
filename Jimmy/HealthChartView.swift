@@ -16,6 +16,20 @@ struct HealthDataCard: View {
     let color: Color
     let data: [HealthKitManager.HealthDataPoint]
     
+    private var isWeightChart: Bool {
+        title.lowercased().contains("weight")
+    }
+    
+    private var yAxisDomain: ClosedRange<Double>? {
+        guard isWeightChart && !data.isEmpty else { return nil }
+        
+        let values = data.map { $0.value }
+        let minValue = values.min() ?? 0
+        let maxValue = values.max() ?? 0
+        
+        return (minValue - 1)...(maxValue + 1)
+    }
+    
     var body: some View {
         VStack(spacing: 12) {
             // Header
@@ -45,21 +59,16 @@ struct HealthDataCard: View {
             // Mini Chart
             if !data.isEmpty {
                 Chart(data, id: \.date) { dataPoint in
-                    LineMark(
+                    BarMark(
                         x: .value("Date", dataPoint.date),
                         y: .value("Value", dataPoint.value)
                     )
                     .foregroundStyle(color)
-                    .lineStyle(StrokeStyle(lineWidth: 2))
-                    
-                    AreaMark(
-                        x: .value("Date", dataPoint.date),
-                        y: .value("Value", dataPoint.value)
-                    )
-                    .foregroundStyle(color.opacity(0.2))
+                    .cornerRadius(2)
                 }
                 .chartXAxis(.hidden)
                 .chartYAxis(.hidden)
+                .chartYScale(domain: yAxisDomain)
                 .frame(height: 60)
             } else {
                 Rectangle()
@@ -89,6 +98,20 @@ struct DetailedHealthChartView: View {
     let unit: String
     let icon: String
     
+    private var isWeightChart: Bool {
+        title.lowercased().contains("weight")
+    }
+    
+    private var yAxisDomain: ClosedRange<Double>? {
+        guard isWeightChart && !data.isEmpty else { return nil }
+        
+        let values = data.map { $0.value }
+        let minValue = values.min() ?? 0
+        let maxValue = values.max() ?? 0
+        
+        return (minValue - 1)...(maxValue + 1)
+    }
+    
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM d"
@@ -113,25 +136,12 @@ struct DetailedHealthChartView: View {
             if !data.isEmpty {
                 // Chart
                 Chart(data, id: \.date) { dataPoint in
-                    LineMark(
+                    BarMark(
                         x: .value("Date", dataPoint.date),
                         y: .value("Value", dataPoint.value)
                     )
                     .foregroundStyle(color)
-                    .lineStyle(StrokeStyle(lineWidth: 3))
-                    
-                    PointMark(
-                        x: .value("Date", dataPoint.date),
-                        y: .value("Value", dataPoint.value)
-                    )
-                    .foregroundStyle(color)
-                    .symbolSize(30)
-                    
-                    AreaMark(
-                        x: .value("Date", dataPoint.date),
-                        y: .value("Value", dataPoint.value)
-                    )
-                    .foregroundStyle(color.opacity(0.2))
+                    .cornerRadius(4)
                 }
                 .chartXAxis {
                     AxisMarks(values: .stride(by: .day, count: 2)) { _ in
@@ -145,6 +155,7 @@ struct DetailedHealthChartView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+                .chartYScale(domain: yAxisDomain)
                 .frame(height: 200)
                 
                 // Stats

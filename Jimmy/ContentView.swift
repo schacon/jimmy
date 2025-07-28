@@ -218,7 +218,7 @@ struct HomeView: View {
                 HealthDataCard(
                   title: "Weight",
                   value: healthKitManager.weeklyAverageWeight > 0
-                    ? String(format: "%.1f lbs", healthKitManager.weeklyAverageWeight) : "--",
+                    ? String(format: "%.1f kg", healthKitManager.weeklyAverageWeight) : "--",
                   subtitle: "Weekly average",
                   icon: "scalemass",
                   color: .pink,

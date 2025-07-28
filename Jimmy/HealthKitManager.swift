@@ -105,7 +105,7 @@ class HealthKitManager {
                     return
                 }
                 
-                let weightUnit = HKUnit.pound()
+                let weightUnit = HKUnit.gramUnit(with: .kilo)
                 let dataPoints = samples.map { sample in
                     HealthDataPoint(
                         date: sample.startDate,
