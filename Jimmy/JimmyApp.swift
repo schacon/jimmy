@@ -14,6 +14,7 @@ struct JimmyApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Workout.self,
+            DrinkDay.self,
             Exercise.self,
             ExerciseEntry.self,
             ExerciseSet.self,

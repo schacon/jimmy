@@ -20,6 +20,17 @@ final class Workout {
 }
 
 @Model
+final class DrinkDay {
+    var date: Date = Date()
+    var didNotDrink: Bool = false
+    
+    init(date: Date, didNotDrink: Bool = false) {
+        self.date = Calendar.current.startOfDay(for: date) // Store only the date part
+        self.didNotDrink = didNotDrink
+    }
+}
+
+@Model
 final class Exercise {
     var name: String = ""
     var category: String? = nil
