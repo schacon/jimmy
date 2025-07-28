@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import Foundation
+import HealthKit
 
 enum AppTab: String, CaseIterable {
     case home = "home"
@@ -116,6 +117,7 @@ struct HomeView: View {
     @Query private var saunaDays: [SaunaDay]
     @Query private var exerciseEntries: [ExerciseEntry]
     @Binding var selectedTab: AppTab
+    @State private var healthKitManager = HealthKitManager()
     
     private var appSettings: AppSettings {
         if let existingSettings = settings.first {
@@ -142,15 +144,93 @@ struct HomeView: View {
                 VStack(spacing: 20) {
                     // Header
                     VStack(spacing: 8) {
-                        Text("Last 4 Weeks")
+                        Text("Health Overview")
                             .font(.title)
                             .fontWeight(.bold)
+                        
+                        Text("Your wellness data at a glance")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.top)
+                    
+                    // HealthKit Data Section
+                    VStack(spacing: 16) {
+                        HStack {
+                            Text("Apple Health")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                            
+                            Spacer()
+                            
+                            if !healthKitManager.isAuthorized {
+                                Button("Enable") {
+                                    Task {
+                                        await healthKitManager.requestPermissions()
+                                    }
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .controlSize(.small)
+                            }
+                        }
+                        .padding(.horizontal)
+                        
+                        if healthKitManager.isAuthorized {
+                            HStack(spacing: 16) {
+                                // Weight Card
+                                HealthDataCard(
+                                    title: "Weight",
+                                    value: healthKitManager.weeklyAverageWeight > 0 ? 
+                                        "\(healthKitManager.weeklyAverageWeight, specifier: "%.1f") lbs" : "--",
+                                    subtitle: "Weekly average",
+                                    icon: "scalemass",
+                                    color: .pink,
+                                    data: healthKitManager.weightData
+                                )
+                                
+                                // Steps Card
+                                HealthDataCard(
+                                    title: "Steps",
+                                    value: healthKitManager.weeklyAverageSteps > 0 ? 
+                                        "\(Int(healthKitManager.weeklyAverageSteps))" : "--",
+                                    subtitle: "Daily average",
+                                    icon: "figure.walk",
+                                    color: .teal,
+                                    data: healthKitManager.stepsData
+                                )
+                            }
+                            .padding(.horizontal)
+                        } else {
+                            VStack(spacing: 12) {
+                                Image(systemName: "heart.text.square")
+                                    .font(.system(size: 48))
+                                    .foregroundColor(.gray)
+                                
+                                Text("Connect to Apple Health")
+                                    .font(.headline)
+                                    .foregroundColor(.secondary)
+                                
+                                Text("View your weight and steps data alongside your habit tracking")
+                                    .font(.body)
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal)
+                            }
+                            .padding(.vertical, 20)
+                        }
+                    }
+                    
+                    // Habit Tracking Header
+                    VStack(spacing: 8) {
+                        Text("Last 4 Weeks")
+                            .font(.title2)
+                            .fontWeight(.semibold)
                         
                         Text("Tap any area to view details")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
-                    .padding(.top)
+                    .padding(.top, 20)
                     
                     // Overview Cards
                     LazyVGrid(columns: [
@@ -225,6 +305,18 @@ struct HomeView: View {
             }
             .navigationTitle("Overview")
             .navigationBarTitleDisplayMode(.large)
+            .onAppear {
+                if healthKitManager.isAuthorized {
+                    Task {
+                        await healthKitManager.fetchHealthData()
+                    }
+                }
+            }
+            .refreshable {
+                if healthKitManager.isAuthorized {
+                    await healthKitManager.fetchHealthData()
+                }
+            }
         }
     }
     
