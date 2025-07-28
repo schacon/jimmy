@@ -280,20 +280,7 @@ struct HomeView: View {
                             )
                         }
                         
-                        if appSettings.showExercisesTab {
-                            OverviewCard(
-                                title: "Exercises",
-                                subtitle: "Detailed workouts",
-                                icon: "list.bullet",
-                                color: .purple,
-                                percentage: exercisePercentage,
-                                count: exerciseEntriesCount,
-                                total: totalDaysInRange,
-                                action: {
-                                    selectedTab = .exercises
-                                }
-                            )
-                        }
+
                     }
                     .padding(.horizontal)
                     
@@ -356,16 +343,7 @@ struct HomeView: View {
         return Double(workoutDaysCount) / Double(totalDaysInRange) * 100
     }
     
-    private var exerciseEntriesCount: Int {
-        exerciseEntries.filter { entry in
-            last4WeeksRange.contains(entry.date)
-        }.count
-    }
-    
-    private var exercisePercentage: Double {
-        guard totalDaysInRange > 0 else { return 0 }
-        return Double(exerciseEntriesCount) / Double(totalDaysInRange) * 100
-    }
+
 }
 
 struct OverviewCard: View {
