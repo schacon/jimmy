@@ -68,7 +68,15 @@ struct HealthDataCard: View {
             .cornerRadius(2)
           }
           .chartXAxis(.hidden)
-          .chartYAxis(.hidden)
+          .chartYAxis {
+            AxisMarks { _ in
+              AxisGridLine()
+                .foregroundStyle(.gray.opacity(0.3))
+              AxisValueLabel()
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            }
+          }
           .chartYScale(domain: domain)
           .frame(height: 60)
         } else {
@@ -81,7 +89,15 @@ struct HealthDataCard: View {
             .cornerRadius(2)
           }
           .chartXAxis(.hidden)
-          .chartYAxis(.hidden)
+          .chartYAxis {
+            AxisMarks { _ in
+              AxisGridLine()
+                .foregroundStyle(.gray.opacity(0.3))
+              AxisValueLabel()
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            }
+          }
           .frame(height: 60)
         }
       } else {
@@ -166,6 +182,8 @@ struct DetailedHealthChartView: View {
           }
           .chartYAxis {
             AxisMarks { _ in
+              AxisGridLine()
+                .foregroundStyle(.gray.opacity(0.2))
               AxisValueLabel()
                 .foregroundStyle(.secondary)
             }
@@ -189,6 +207,8 @@ struct DetailedHealthChartView: View {
           }
           .chartYAxis {
             AxisMarks { _ in
+              AxisGridLine()
+                .foregroundStyle(.gray.opacity(0.2))
               AxisValueLabel()
                 .foregroundStyle(.secondary)
             }
