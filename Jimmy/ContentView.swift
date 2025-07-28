@@ -258,6 +258,7 @@ struct HomeView: View {
           }
           Spacer(minLength: 40)
         }
+        .padding(.top)
       }
       .onAppear {
         if healthKitManager.isAuthorized {
