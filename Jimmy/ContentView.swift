@@ -1798,6 +1798,13 @@ struct SaunaDayExportContainer: Codable {
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var settings: [AppSettings]
+    @Query private var workouts: [Workout]
+    @Query private var drinkDays: [DrinkDay]
+    @Query private var saunaDays: [SaunaDay]
+    @Query private var exercises: [Exercise]
+    @Query private var exerciseEntries: [ExerciseEntry]
+    @State private var showingShareSheet = false
+    @State private var shareURL: URL?
     
     private var appSettings: AppSettings {
         if let existingSettings = settings.first {
@@ -1894,7 +1901,7 @@ struct SettingsView: View {
                 
                 Section(header: Text("Data")) {
                     Button(action: {
-                        // Could add export functionality here
+                        exportAllData()
                     }) {
                         HStack {
                             Image(systemName: "square.and.arrow.up")
@@ -1917,13 +1924,163 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.large)
+            .sheet(isPresented: $showingShareSheet) {
+                if let shareURL = shareURL {
+                    ShareSheet(activityItems: [shareURL])
+                }
+            }
         }
+    }
+    
+    private func exportAllData() {
+        Task {
+            do {
+                let exportData = ComprehensiveExport(
+                    exportDate: Date(),
+                    appVersion: "1.0.0",
+                    settings: ComprehensiveExport.SettingsExport(
+                        showDrinksTab: appSettings.showDrinksTab,
+                        showSaunaTab: appSettings.showSaunaTab,
+                        showGymTab: appSettings.showGymTab,
+                        showExercisesTab: appSettings.showExercisesTab
+                    ),
+                    workouts: workouts.map { workout in
+                        ComprehensiveExport.WorkoutExport(
+                            date: workout.date,
+                            didWorkout: workout.didWorkout
+                        )
+                    },
+                    drinkDays: drinkDays.map { drinkDay in
+                        ComprehensiveExport.DrinkDayExport(
+                            date: drinkDay.date,
+                            didNotDrink: drinkDay.didNotDrink
+                        )
+                    },
+                    saunaDays: saunaDays.map { saunaDay in
+                        ComprehensiveExport.SaunaDayExport(
+                            date: saunaDay.date,
+                            didSauna: saunaDay.didSauna
+                        )
+                    },
+                    exercises: exercises.map { exercise in
+                        ComprehensiveExport.ExerciseExport(
+                            name: exercise.name,
+                            category: exercise.category,
+                            dateCreated: exercise.dateCreated
+                        )
+                    },
+                    exerciseEntries: exerciseEntries.map { entry in
+                        ComprehensiveExport.ExerciseEntryExport(
+                            date: entry.date,
+                            exerciseName: entry.exercise?.name ?? "Unknown",
+                            sets: entry.sets?.map { set in
+                                ComprehensiveExport.ExerciseSetExport(
+                                    weight: set.weight,
+                                    reps: set.reps
+                                )
+                            } ?? [],
+                            notes: entry.notes
+                        )
+                    }
+                )
+                
+                // Create JSON
+                let encoder = JSONEncoder()
+                encoder.dateEncodingStrategy = .iso8601
+                encoder.outputFormatting = .prettyPrinted
+                
+                let jsonData = try encoder.encode(exportData)
+                
+                // Create temporary file
+                let tempURL = FileManager.default.temporaryDirectory
+                    .appendingPathComponent("Jimmy_Export_\(dateForFilename()).json")
+                
+                try jsonData.write(to: tempURL)
+                
+                // Show share sheet
+                await MainActor.run {
+                    shareURL = tempURL
+                    showingShareSheet = true
+                }
+                
+            } catch {
+                print("Export failed: \(error)")
+            }
+        }
+    }
+    
+    private func dateForFilename() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd_HH-mm"
+        return formatter.string(from: Date())
     }
     
     private func resetAllData() {
         // Show confirmation alert before resetting
         // For now, this is a placeholder
         print("Reset all data functionality would go here")
+    }
+}
+
+struct ShareSheet: UIViewControllerRepresentable {
+    let activityItems: [Any]
+    
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+    }
+    
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
+// MARK: - Comprehensive Export Structure
+struct ComprehensiveExport: Codable {
+    let exportDate: Date
+    let appVersion: String
+    let settings: SettingsExport
+    let workouts: [WorkoutExport]
+    let drinkDays: [DrinkDayExport]
+    let saunaDays: [SaunaDayExport]
+    let exercises: [ExerciseExport]
+    let exerciseEntries: [ExerciseEntryExport]
+    
+    struct SettingsExport: Codable {
+        let showDrinksTab: Bool
+        let showSaunaTab: Bool
+        let showGymTab: Bool
+        let showExercisesTab: Bool
+    }
+    
+    struct WorkoutExport: Codable {
+        let date: Date
+        let didWorkout: Bool
+    }
+    
+    struct DrinkDayExport: Codable {
+        let date: Date
+        let didNotDrink: Bool
+    }
+    
+    struct SaunaDayExport: Codable {
+        let date: Date
+        let didSauna: Bool
+    }
+    
+    struct ExerciseExport: Codable {
+        let name: String
+        let category: String?
+        let dateCreated: Date
+    }
+    
+    struct ExerciseEntryExport: Codable {
+        let date: Date
+        let exerciseName: String
+        let sets: [ExerciseSetExport]
+        let notes: String?
+    }
+    
+    struct ExerciseSetExport: Codable {
+        let weight: Double
+        let reps: Int
     }
 }
 
