@@ -161,10 +161,10 @@ struct HomeView: View {
 
   private let calendar = Calendar.current
 
-  private var last4WeeksRange: ClosedRange<Date> {
-    let endDate = Date()
-    let startDate = calendar.date(byAdding: .day, value: -28, to: endDate) ?? endDate
-    return startDate...endDate
+  private var currentMonthRange: ClosedRange<Date> {
+    let today = Date()
+    let startOfMonth = calendar.dateInterval(of: .month, for: today)?.start ?? today
+    return startOfMonth...today
   }
 
   private var judgementDay: Date {
@@ -417,14 +417,14 @@ struct HomeView: View {
   // MARK: - Computed Properties for Stats
 
   private var totalDaysInRange: Int {
-    calendar.dateComponents(
-      [.day], from: last4WeeksRange.lowerBound, to: last4WeeksRange.upperBound
-    ).day ?? 28
+    (calendar.dateComponents(
+      [.day], from: currentMonthRange.lowerBound, to: currentMonthRange.upperBound
+    ).day ?? 0) + 1
   }
 
   private var drinkFreeDaysCount: Int {
     drinkDays.filter { day in
-      last4WeeksRange.contains(day.date) && day.didNotDrink
+      currentMonthRange.contains(day.date) && day.didNotDrink
     }.count
   }
 
@@ -435,7 +435,7 @@ struct HomeView: View {
 
   private var saunaDaysCount: Int {
     saunaDays.filter { day in
-      last4WeeksRange.contains(day.date) && day.didSauna
+      currentMonthRange.contains(day.date) && day.didSauna
     }.count
   }
 
@@ -457,7 +457,7 @@ struct HomeView: View {
 
   private var workoutDaysCount: Int {
     workouts.filter { workout in
-      last4WeeksRange.contains(workout.date) && workout.didWorkout
+      currentMonthRange.contains(workout.date) && workout.didWorkout
     }.count
   }
 
@@ -1206,7 +1206,7 @@ struct StatsBox: View {
     let startOfMonth =
       calendar.dateInterval(of: .month, for: dateRange.lowerBound)?.start ?? dateRange.lowerBound
     let endDate = min(dateRange.upperBound, Date())  // Don't count future days
-    return calendar.dateComponents([.day], from: startOfMonth, to: endDate).day ?? 0
+    return (calendar.dateComponents([.day], from: startOfMonth, to: endDate).day ?? 0) + 1
   }
 
   private var progressColor: Color {
@@ -1981,7 +1981,7 @@ struct DrinksStatsBox: View {
     let startOfMonth =
       calendar.dateInterval(of: .month, for: dateRange.lowerBound)?.start ?? dateRange.lowerBound
     let endDate = min(dateRange.upperBound, Date())
-    return calendar.dateComponents([.day], from: startOfMonth, to: endDate).day ?? 0
+    return (calendar.dateComponents([.day], from: startOfMonth, to: endDate).day ?? 0) + 1
   }
 
   private var progressColor: Color {
@@ -2376,7 +2376,7 @@ struct SaunaStatsBox: View {
     let startOfMonth =
       calendar.dateInterval(of: .month, for: dateRange.lowerBound)?.start ?? dateRange.lowerBound
     let endDate = min(dateRange.upperBound, Date())
-    return calendar.dateComponents([.day], from: startOfMonth, to: endDate).day ?? 0
+    return (calendar.dateComponents([.day], from: startOfMonth, to: endDate).day ?? 0) + 1
   }
 
   private var progressColor: Color {
