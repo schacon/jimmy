@@ -42,10 +42,22 @@ final class SaunaDay {
 }
 
 @Model
+final class FastingDay {
+    var date: Date = Date()
+    var didFast: Bool = false
+    
+    init(date: Date, didFast: Bool = false) {
+        self.date = Calendar.current.startOfDay(for: date) // Store only the date part
+        self.didFast = didFast
+    }
+}
+
+@Model
 final class AppSettings {
     var showHomeTab: Bool = true
     var showDrinksTab: Bool = true
     var showSaunaTab: Bool = true
+    var showFastingTab: Bool = true
     var showGymTab: Bool = true
     var showExercisesTab: Bool = true
     
@@ -53,6 +65,7 @@ final class AppSettings {
         self.showHomeTab = true
         self.showDrinksTab = true
         self.showSaunaTab = true
+        self.showFastingTab = true
         self.showGymTab = true
         self.showExercisesTab = true
     }
