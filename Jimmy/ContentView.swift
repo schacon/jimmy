@@ -614,7 +614,7 @@ struct CalendarView: View {
             // Weekly checkmark
             if hasThreeWorkoutsInWeek(weekDays) {
               Image(systemName: "checkmark.circle.fill")
-                .foregroundColor(.green)
+                .foregroundColor(.blue)
                 .font(.system(size: 16))
             } else {
               Spacer()
@@ -756,7 +756,7 @@ struct DayView: View {
 
     switch workoutStatus {
     case .worked:
-      return .green.opacity(0.2)
+      return .blue.opacity(0.2)
     case .didNotWork:
       return .red.opacity(0.2)
     case .noData:
@@ -769,7 +769,7 @@ struct DayView: View {
   private var indicatorColor: Color {
     switch workoutStatus {
     case .worked:
-      return .green
+      return .blue
     case .didNotWork:
       return .red
     case .noData:
