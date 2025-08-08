@@ -178,6 +178,10 @@ struct HomeView: View {
     return activeFastingSession != nil
   }
 
+  private var lastCompletedFast: FastingSession? {
+    return fastingSessions.first(where: { !$0.isActive && $0.endTime != nil })
+  }
+
   var body: some View {
     NavigationView {
       ScrollView {
@@ -228,6 +232,7 @@ struct HomeView: View {
             FastingTimerCard(
               isCurrentlyFasting: isCurrentlyFasting,
               activeFastingSession: activeFastingSession,
+              lastCompletedFast: lastCompletedFast,
               fastingTimerText: fastingTimerText,
               onStartFasting: startFasting,
               onEndFasting: endFasting,
@@ -549,6 +554,7 @@ struct OverviewCard: View {
 struct FastingTimerCard: View {
   let isCurrentlyFasting: Bool
   let activeFastingSession: FastingSession?
+  let lastCompletedFast: FastingSession?
   let fastingTimerText: String
   let onStartFasting: () -> Void
   let onEndFasting: () -> Void
@@ -574,9 +580,15 @@ struct FastingTimerCard: View {
                 .foregroundColor(.secondary)
             }
           } else {
-            Text("Ready to start your fast")
-              .font(.caption)
-              .foregroundColor(.secondary)
+            if let lastFast = lastCompletedFast {
+              Text("Last fast: \(lastFast.durationString)")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            } else {
+              Text("Ready to start your fast")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            }
           }
         }
         
