@@ -128,9 +128,13 @@ struct HomeView: View {
   @Query private var drinkDays: [DrinkDay]
   @Query private var saunaDays: [SaunaDay]
   @Query private var fastingDays: [FastingDay]
+  @Query private var fastingSessions: [FastingSession]
   @Query private var exerciseEntries: [ExerciseEntry]
   @Binding var selectedTab: AppTab
   @State private var healthKitManager = HealthKitManager()
+  @State private var timer: Timer?
+  @State private var fastingTimerText: String = ""
+  @State private var showingFastingLog = false
 
   private var appSettings: AppSettings {
     if let existingSettings = settings.first {
@@ -151,11 +155,91 @@ struct HomeView: View {
     return startDate...endDate
   }
 
+  private var judgementDay: Date {
+    let components = DateComponents(year: 2025, month: 8, day: 28)
+    return calendar.date(from: components) ?? Date()
+  }
+
+  private var daysUntilJudgementDay: Int {
+    let today = calendar.startOfDay(for: Date())
+    let judgement = calendar.startOfDay(for: judgementDay)
+    return calendar.dateComponents([.day], from: today, to: judgement).day ?? 0
+  }
+
+  private var shouldShowJudgementDay: Bool {
+    return Date() < judgementDay
+  }
+
+  private var activeFastingSession: FastingSession? {
+    return fastingSessions.first(where: { $0.isActive })
+  }
+
+  private var isCurrentlyFasting: Bool {
+    return activeFastingSession != nil
+  }
+
   var body: some View {
     NavigationView {
       ScrollView {
         VStack(spacing: 20) {
           VStack(spacing: 16) {
+
+            // Judgement Day Countdown (if applicable)
+            if shouldShowJudgementDay {
+              VStack(spacing: 8) {
+                HStack {
+                  Image(systemName: "clock.badge.exclamationmark")
+                    .font(.title2)
+                    .foregroundColor(.purple)
+                  
+                  Text("Judgement Day")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                  
+                  Spacer()
+                }
+                
+                HStack {
+                  Text("\(daysUntilJudgementDay)")
+                    .font(.system(size: 48, weight: .heavy))
+                    .foregroundColor(.purple)
+                  
+                  Text("days left")
+                    .font(.title3)
+                    .foregroundColor(.secondary)
+                    .padding(.leading, 4)
+                  
+                  Spacer()
+                }
+                
+                Text("August 28, 2025")
+                  .font(.caption)
+                  .foregroundColor(.secondary)
+                  .frame(maxWidth: .infinity, alignment: .leading)
+              }
+              .padding(16)
+              .background(Color.purple.opacity(0.1))
+              .cornerRadius(16)
+              .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                  .stroke(Color.purple.opacity(0.3), lineWidth: 1)
+              )
+              .padding(.horizontal)
+            }
+
+            // Fasting Timer Card
+            FastingTimerCard(
+              isCurrentlyFasting: isCurrentlyFasting,
+              activeFastingSession: activeFastingSession,
+              fastingTimerText: fastingTimerText,
+              onStartFasting: startFasting,
+              onEndFasting: endFasting,
+              onNavigateToLog: {
+                showingFastingLog = true
+              }
+            )
+            .padding(.horizontal)
 
             // Overview Cards
             VStack(spacing: 12) {
@@ -298,11 +382,18 @@ struct HomeView: View {
             await healthKitManager.fetchHealthData()
           }
         }
+        startFastingTimer()
+      }
+      .onDisappear {
+        timer?.invalidate()
       }
       .refreshable {
         if healthKitManager.isAuthorized {
           await healthKitManager.fetchHealthData()
         }
+      }
+      .sheet(isPresented: $showingFastingLog) {
+        FastingLogView()
       }
     }
   }
@@ -357,6 +448,42 @@ struct HomeView: View {
   private var workoutPercentage: Double {
     guard totalDaysInRange > 0 else { return 0 }
     return Double(workoutDaysCount) / Double(totalDaysInRange) * 100
+  }
+
+  // MARK: - Fasting Timer Functions
+  
+  private func startFastingTimer() {
+    timer?.invalidate()
+    timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+      updateFastingTimerText()
+    }
+    updateFastingTimerText()
+  }
+  
+  private func updateFastingTimerText() {
+    guard let session = activeFastingSession else {
+      fastingTimerText = ""
+      return
+    }
+    
+    let duration = Date().timeIntervalSince(session.startTime)
+    let hours = Int(duration) / 3600
+    let minutes = Int(duration) % 3600 / 60
+    let seconds = Int(duration) % 60
+    
+    fastingTimerText = String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+  }
+  
+  private func startFasting() {
+    let session = FastingSession()
+    modelContext.insert(session)
+    try? modelContext.save()
+  }
+  
+  private func endFasting() {
+    guard let session = activeFastingSession else { return }
+    session.endSession()
+    try? modelContext.save()
   }
 
 }
@@ -417,6 +544,84 @@ struct OverviewCard: View {
       .overlay(
         RoundedRectangle(cornerRadius: 16)
           .stroke(color.opacity(0.3), lineWidth: 1)
+      )
+    }
+    .buttonStyle(.plain)
+  }
+}
+
+struct FastingTimerCard: View {
+  let isCurrentlyFasting: Bool
+  let activeFastingSession: FastingSession?
+  let fastingTimerText: String
+  let onStartFasting: () -> Void
+  let onEndFasting: () -> Void
+  let onNavigateToLog: () -> Void
+
+  var body: some View {
+    Button(action: onNavigateToLog) {
+      VStack(spacing: 12) {
+        HStack {
+          Image(systemName: "timer")
+            .font(.title2)
+            .foregroundColor(.mint)
+          
+          Text("Fasting Timer")
+            .font(.title2)
+            .fontWeight(.bold)
+            .foregroundColor(.primary)
+          
+          Spacer()
+        }
+        
+        if isCurrentlyFasting {
+          VStack(spacing: 8) {
+            Text(fastingTimerText)
+              .font(.system(size: 32, weight: .heavy, design: .monospaced))
+              .foregroundColor(.mint)
+            
+            if let session = activeFastingSession {
+              Text("Started at \(session.startTime, style: .time)")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            }
+            
+            Button(action: onEndFasting) {
+              Text("End Fasting")
+                .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(Color.red)
+                .cornerRadius(10)
+            }
+          }
+        } else {
+          VStack(spacing: 8) {
+            Text("Ready to start your fast")
+              .font(.subheadline)
+              .foregroundColor(.secondary)
+            
+            Button(action: onStartFasting) {
+              Text("Start Fasting")
+                .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(Color.mint)
+                .cornerRadius(10)
+            }
+          }
+        }
+      }
+      .padding(16)
+      .background(Color.mint.opacity(0.1))
+      .cornerRadius(16)
+      .overlay(
+        RoundedRectangle(cornerRadius: 16)
+          .stroke(Color.mint.opacity(0.3), lineWidth: 1)
       )
     }
     .buttonStyle(.plain)
@@ -3098,6 +3303,198 @@ struct FastingDayExportContainer: Codable {
   let exportDate: Date
   let totalFastingDays: Int
   let fastingDays: [FastingDayExport]
+}
+
+struct FastingLogView: View {
+  @Environment(\.modelContext) private var modelContext
+  @Environment(\.dismiss) private var dismiss
+  @Query(sort: \FastingSession.startTime, order: .reverse) private var fastingSessions: [FastingSession]
+  @State private var editingSession: FastingSession?
+  @State private var showingEditSheet = false
+
+  var body: some View {
+    NavigationView {
+      List {
+        ForEach(fastingSessions) { session in
+          FastingSessionRow(
+            session: session,
+            onEdit: {
+              editingSession = session
+              showingEditSheet = true
+            }
+          )
+        }
+        .onDelete(perform: deleteSessions)
+      }
+      .navigationTitle("Fasting Log")
+      .navigationBarTitleDisplayMode(.large)
+      .toolbar {
+        ToolbarItem(placement: .navigationBarTrailing) {
+          Button("Done") {
+            dismiss()
+          }
+        }
+      }
+      .sheet(isPresented: $showingEditSheet) {
+        if let session = editingSession {
+          EditFastingSessionView(session: session)
+        }
+      }
+    }
+  }
+  
+  private func deleteSessions(offsets: IndexSet) {
+    withAnimation {
+      for index in offsets {
+        modelContext.delete(fastingSessions[index])
+      }
+      try? modelContext.save()
+    }
+  }
+}
+
+struct FastingSessionRow: View {
+  let session: FastingSession
+  let onEdit: () -> Void
+  
+  private let dateFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.dateStyle = .medium
+    formatter.timeStyle = .short
+    return formatter
+  }()
+  
+  var body: some View {
+    Button(action: onEdit) {
+      VStack(alignment: .leading, spacing: 8) {
+        HStack {
+          VStack(alignment: .leading, spacing: 2) {
+            Text("Started")
+              .font(.caption)
+              .foregroundColor(.secondary)
+            Text(dateFormatter.string(from: session.startTime))
+              .font(.subheadline)
+              .fontWeight(.medium)
+          }
+          
+          Spacer()
+          
+          if let endTime = session.endTime {
+            VStack(alignment: .trailing, spacing: 2) {
+              Text("Ended")
+                .font(.caption)
+                .foregroundColor(.secondary)
+              Text(dateFormatter.string(from: endTime))
+                .font(.subheadline)
+                .fontWeight(.medium)
+            }
+          } else {
+            VStack(alignment: .trailing, spacing: 2) {
+              Text("Active")
+                .font(.caption)
+                .foregroundColor(.mint)
+              Text("In Progress")
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .foregroundColor(.mint)
+            }
+          }
+        }
+        
+        HStack {
+          Text("Duration")
+            .font(.caption)
+            .foregroundColor(.secondary)
+          
+          Spacer()
+          
+          Text(session.durationString)
+            .font(.headline)
+            .fontWeight(.bold)
+            .foregroundColor(session.isActive ? .mint : .primary)
+        }
+      }
+      .padding(.vertical, 4)
+    }
+    .buttonStyle(.plain)
+  }
+}
+
+struct EditFastingSessionView: View {
+  @Environment(\.modelContext) private var modelContext
+  @Environment(\.dismiss) private var dismiss
+  @ObservedObject var session: FastingSession
+  @State private var startTime: Date
+  @State private var endTime: Date
+  @State private var isActive: Bool
+  
+  init(session: FastingSession) {
+    self.session = session
+    self._startTime = State(initialValue: session.startTime)
+    self._endTime = State(initialValue: session.endTime ?? Date())
+    self._isActive = State(initialValue: session.isActive)
+  }
+  
+  var body: some View {
+    NavigationView {
+      Form {
+        Section(header: Text("Session Details")) {
+          DatePicker("Start Time", selection: $startTime)
+          
+          Toggle("Session Active", isOn: $isActive)
+          
+          if !isActive {
+            DatePicker("End Time", selection: $endTime)
+          }
+        }
+        
+        Section(header: Text("Duration")) {
+          HStack {
+            Text("Total Duration")
+            Spacer()
+            Text(calculatedDurationString)
+              .fontWeight(.semibold)
+          }
+        }
+      }
+      .navigationTitle("Edit Session")
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .navigationBarLeading) {
+          Button("Cancel") {
+            dismiss()
+          }
+        }
+        
+        ToolbarItem(placement: .navigationBarTrailing) {
+          Button("Save") {
+            saveChanges()
+            dismiss()
+          }
+        }
+      }
+    }
+  }
+  
+  private var calculatedDurationString: String {
+    let duration = isActive ? Date().timeIntervalSince(startTime) : endTime.timeIntervalSince(startTime)
+    let hours = Int(duration) / 3600
+    let minutes = Int(duration) % 3600 / 60
+    return "\(hours)h \(minutes)m"
+  }
+  
+  private func saveChanges() {
+    session.startTime = startTime
+    session.isActive = isActive
+    
+    if isActive {
+      session.endTime = nil
+    } else {
+      session.endTime = endTime
+    }
+    
+    try? modelContext.save()
+  }
 }
 
 #Preview {

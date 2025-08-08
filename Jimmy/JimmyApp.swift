@@ -17,6 +17,7 @@ struct JimmyApp: App {
             DrinkDay.self,
             SaunaDay.self,
             FastingDay.self,
+            FastingSession.self,
             Exercise.self,
             ExerciseEntry.self,
             ExerciseSet.self,

@@ -53,6 +53,37 @@ final class FastingDay {
 }
 
 @Model
+final class FastingSession {
+    var startTime: Date = Date()
+    var endTime: Date? = nil
+    var isActive: Bool = false
+    
+    init(startTime: Date = Date()) {
+        self.startTime = startTime
+        self.endTime = nil
+        self.isActive = true
+    }
+    
+    func endSession(at endTime: Date = Date()) {
+        self.endTime = endTime
+        self.isActive = false
+    }
+    
+    var duration: TimeInterval {
+        guard let endTime = endTime else {
+            return Date().timeIntervalSince(startTime)
+        }
+        return endTime.timeIntervalSince(startTime)
+    }
+    
+    var durationString: String {
+        let hours = Int(duration) / 3600
+        let minutes = Int(duration) % 3600 / 60
+        return "\(hours)h \(minutes)m"
+    }
+}
+
+@Model
 final class AppSettings {
     var showHomeTab: Bool = true
     var showDrinksTab: Bool = true
