@@ -3313,7 +3313,7 @@ struct FastingLogView: View {
   @State private var showingEditSheet = false
 
   var body: some View {
-    NavigationView {
+    NavigationStack {
       List {
         ForEach(fastingSessions) { session in
           FastingSessionRow(
@@ -3436,7 +3436,7 @@ struct EditFastingSessionView: View {
   }
   
   var body: some View {
-    NavigationView {
+    NavigationStack {
       Form {
         Section(header: Text("Session Details")) {
           DatePicker("Start Time", selection: $startTime)
