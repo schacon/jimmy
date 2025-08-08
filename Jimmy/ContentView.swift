@@ -186,43 +186,39 @@ struct HomeView: View {
 
             // Judgement Day Countdown (if applicable)
             if shouldShowJudgementDay {
-              VStack(spacing: 8) {
-                HStack {
-                  Image(systemName: "clock.badge.exclamationmark")
-                    .font(.title2)
-                    .foregroundColor(.purple)
-                  
+              HStack(spacing: 12) {
+                Image(systemName: "clock.badge.exclamationmark")
+                  .font(.title2)
+                  .foregroundColor(.purple)
+                
+                VStack(alignment: .leading, spacing: 2) {
                   Text("Judgement Day")
-                    .font(.title2)
+                    .font(.headline)
                     .fontWeight(.bold)
                     .foregroundColor(.primary)
                   
-                  Spacer()
+                  Text("August 28, 2025")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
                 }
                 
-                HStack {
+                Spacer()
+                
+                VStack(alignment: .trailing, spacing: 2) {
                   Text("\(daysUntilJudgementDay)")
-                    .font(.system(size: 48, weight: .heavy))
+                    .font(.system(size: 28, weight: .heavy))
                     .foregroundColor(.purple)
                   
                   Text("days left")
-                    .font(.title3)
+                    .font(.caption)
                     .foregroundColor(.secondary)
-                    .padding(.leading, 4)
-                  
-                  Spacer()
                 }
-                
-                Text("August 28, 2025")
-                  .font(.caption)
-                  .foregroundColor(.secondary)
-                  .frame(maxWidth: .infinity, alignment: .leading)
               }
-              .padding(16)
+              .padding(12)
               .background(Color.purple.opacity(0.1))
-              .cornerRadius(16)
+              .cornerRadius(12)
               .overlay(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: 12)
                   .stroke(Color.purple.opacity(0.3), lineWidth: 1)
               )
               .padding(.horizontal)
@@ -560,67 +556,67 @@ struct FastingTimerCard: View {
 
   var body: some View {
     Button(action: onNavigateToLog) {
-      VStack(spacing: 12) {
-        HStack {
-          Image(systemName: "timer")
-            .font(.title2)
-            .foregroundColor(.mint)
-          
+      HStack(spacing: 12) {
+        Image(systemName: "timer")
+          .font(.title2)
+          .foregroundColor(.mint)
+        
+        VStack(alignment: .leading, spacing: 2) {
           Text("Fasting Timer")
-            .font(.title2)
+            .font(.headline)
             .fontWeight(.bold)
             .foregroundColor(.primary)
           
-          Spacer()
-        }
-        
-        if isCurrentlyFasting {
-          VStack(spacing: 8) {
-            Text(fastingTimerText)
-              .font(.system(size: 32, weight: .heavy, design: .monospaced))
-              .foregroundColor(.mint)
-            
+          if isCurrentlyFasting {
             if let session = activeFastingSession {
               Text("Started at \(session.startTime, style: .time)")
                 .font(.caption)
                 .foregroundColor(.secondary)
             }
+          } else {
+            Text("Ready to start your fast")
+              .font(.caption)
+              .foregroundColor(.secondary)
+          }
+        }
+        
+        Spacer()
+        
+        VStack(alignment: .trailing, spacing: 4) {
+          if isCurrentlyFasting {
+            Text(fastingTimerText)
+              .font(.system(size: 20, weight: .heavy, design: .monospaced))
+              .foregroundColor(.mint)
             
             Button(action: onEndFasting) {
-              Text("End Fasting")
-                .font(.headline)
+              Text("End")
+                .font(.caption)
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 4)
                 .background(Color.red)
-                .cornerRadius(10)
+                .cornerRadius(6)
             }
-          }
-        } else {
-          VStack(spacing: 8) {
-            Text("Ready to start your fast")
-              .font(.subheadline)
-              .foregroundColor(.secondary)
-            
+          } else {
             Button(action: onStartFasting) {
               Text("Start Fasting")
-                .font(.headline)
+                .font(.subheadline)
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
                 .background(Color.mint)
-                .cornerRadius(10)
+                .cornerRadius(8)
             }
           }
         }
       }
-      .padding(16)
+      .padding(12)
       .background(Color.mint.opacity(0.1))
-      .cornerRadius(16)
+      .cornerRadius(12)
       .overlay(
-        RoundedRectangle(cornerRadius: 16)
+        RoundedRectangle(cornerRadius: 12)
           .stroke(Color.mint.opacity(0.3), lineWidth: 1)
       )
     }
