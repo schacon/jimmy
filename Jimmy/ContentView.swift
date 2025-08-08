@@ -3423,7 +3423,7 @@ struct FastingSessionRow: View {
 struct EditFastingSessionView: View {
   @Environment(\.modelContext) private var modelContext
   @Environment(\.dismiss) private var dismiss
-  @ObservedObject var session: FastingSession
+  let session: FastingSession
   @State private var startTime: Date
   @State private var endTime: Date
   @State private var isActive: Bool
