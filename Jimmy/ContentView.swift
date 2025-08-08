@@ -179,7 +179,10 @@ struct HomeView: View {
   }
 
   private var lastCompletedFast: FastingSession? {
-    return fastingSessions.first(where: { !$0.isActive && $0.endTime != nil })
+    return fastingSessions
+      .filter { !$0.isActive && $0.endTime != nil }
+      .sorted { $0.startTime > $1.startTime }
+      .first
   }
 
   var body: some View {
