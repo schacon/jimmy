@@ -16,6 +16,7 @@ enum AppTab: String, CaseIterable {
   case sauna = "sauna"
   case gym = "gym"
   case exercises = "exercises"
+  case measurements = "measurements"
   case settings = "settings"
 }
 
@@ -83,6 +84,15 @@ struct ContentView: View {
           .tag(AppTab.exercises)
       }
 
+      if appSettings.showMeasurementsTab {
+        MeasurementsView()
+          .tabItem {
+            Image(systemName: "ruler")
+            Text("Measurements")
+          }
+          .tag(AppTab.measurements)
+      }
+
       SettingsView()
         .tabItem {
           Image(systemName: "gear")
@@ -101,6 +111,8 @@ struct ContentView: View {
           selectedTab = .gym
         } else if appSettings.showExercisesTab {
           selectedTab = .exercises
+        } else if appSettings.showMeasurementsTab {
+          selectedTab = .measurements
         } else {
           selectedTab = .settings
         }
@@ -2255,6 +2267,23 @@ struct SettingsView: View {
               Text("Exercises")
             }
           }
+
+          Toggle(
+            isOn: Binding(
+              get: { appSettings.showMeasurementsTab },
+              set: { newValue in
+                appSettings.showMeasurementsTab = newValue
+                try? modelContext.save()
+              }
+            )
+          ) {
+            HStack {
+              Image(systemName: "ruler")
+                .foregroundColor(.teal)
+                .frame(width: 20)
+              Text("Measurements")
+            }
+          }
         }
 
         Section(header: Text("About")) {
@@ -2306,7 +2335,8 @@ struct SettingsView: View {
             showDrinksTab: appSettings.showDrinksTab,
             showSaunaTab: appSettings.showSaunaTab,
             showGymTab: appSettings.showGymTab,
-            showExercisesTab: appSettings.showExercisesTab
+            showExercisesTab: appSettings.showExercisesTab,
+            showMeasurementsTab: appSettings.showMeasurementsTab
           ),
           workouts: workouts.map { workout in
             ComprehensiveExport.WorkoutExport(
@@ -2408,6 +2438,7 @@ struct ComprehensiveExport: Codable {
     let showSaunaTab: Bool
     let showGymTab: Bool
     let showExercisesTab: Bool
+    let showMeasurementsTab: Bool
   }
 
   struct WorkoutExport: Codable {

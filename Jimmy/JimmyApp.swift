@@ -19,6 +19,8 @@ struct JimmyApp: App {
             Exercise.self,
             ExerciseEntry.self,
             ExerciseSet.self,
+            MeasurementType.self,
+            MeasurementEntry.self,
             AppSettings.self,
         ])
         

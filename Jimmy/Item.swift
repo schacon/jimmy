@@ -48,6 +48,7 @@ final class AppSettings {
     var showSaunaTab: Bool = true
     var showGymTab: Bool = true
     var showExercisesTab: Bool = true
+    var showMeasurementsTab: Bool = true
     
     init() {
         self.showHomeTab = true
@@ -55,6 +56,7 @@ final class AppSettings {
         self.showSaunaTab = true
         self.showGymTab = true
         self.showExercisesTab = true
+        self.showMeasurementsTab = true
     }
 }
 
@@ -105,3 +107,31 @@ final class ExerciseSet {
         self.reps = reps
     }
 }
+
+@Model
+final class MeasurementType {
+    var name: String = ""
+    var unit: String? = nil
+    @Relationship(deleteRule: .cascade, inverse: \MeasurementEntry.type)
+    var entries: [MeasurementEntry]? = []
+
+    init(name: String, unit: String? = nil) {
+        self.name = name
+        self.unit = unit
+        self.entries = []
+    }
+}
+
+@Model
+final class MeasurementEntry {
+    var date: Date = Date()
+    var value: Double = 0.0
+    var type: MeasurementType?
+
+    init(date: Date, value: Double, type: MeasurementType) {
+        self.date = Calendar.current.startOfDay(for: date)
+        self.value = value
+        self.type = type
+    }
+}
+
