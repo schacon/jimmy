@@ -2,13 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSHealthShareUsageDescription</key>
+	<string>This app reads your weight and step count data from Apple Health to display trends and weekly averages alongside your habit tracking data.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Jimmy does not write any data to Apple Health. This permission would only be used if a future feature saves your tracked habits to Health, and only with your explicit approval.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
 	</array>
-	<key>NSHealthShareUsageDescription</key>
-	<string>This app reads your weight and step count data from Apple Health to display trends and weekly averages alongside your habit tracking data.</string>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
 </dict>
 </plist>
