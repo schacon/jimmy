@@ -12,7 +12,15 @@ struct MeasurementsView: View {
         ForEach(measurementTypes) { type in
           NavigationLink(destination: MeasurementDetailView(measurementType: type)) {
             HStack {
-              Text(type.name)
+              VStack(alignment: .leading, spacing: 2) {
+                Text(type.name)
+                if let lastEntry = type.entries?.sorted(by: { $0.date > $1.date }).first {
+                  Text("Last: \(lastEntry.value, specifier: "%.1f")\(type.unit.map { " \($0)" } ?? "")")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                }
+              }
+              Spacer()
               if let unit = type.unit, !unit.isEmpty {
                 Text(unit)
                   .foregroundColor(.secondary)
@@ -49,14 +57,21 @@ struct AddMeasurementTypeView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.modelContext) private var modelContext
   @State private var name = ""
-  @State private var unit = ""
+  @State private var unit = "cm"
+  
+  private let unitOptions = ["cm", "mm", "inches"]
 
   var body: some View {
     NavigationView {
       Form {
         Section {
           TextField("Name", text: $name)
-          TextField("Unit", text: $unit)
+          Picker("Unit", selection: $unit) {
+            ForEach(unitOptions, id: \.self) { option in
+              Text(option).tag(option)
+            }
+          }
+          .pickerStyle(MenuPickerStyle())
         }
       }
       .navigationTitle("New Measurement")
@@ -73,7 +88,7 @@ struct AddMeasurementTypeView: View {
   }
 
   private func save() {
-    let type = MeasurementType(name: name, unit: unit.isEmpty ? nil : unit)
+    let type = MeasurementType(name: name, unit: unit)
     modelContext.insert(type)
     try? modelContext.save()
     dismiss()
@@ -82,7 +97,7 @@ struct AddMeasurementTypeView: View {
 
 struct MeasurementDetailView: View {
   @Environment(\.modelContext) private var modelContext
-  @ObservedObject var measurementType: MeasurementType
+  @Bindable var measurementType: MeasurementType
   @State private var value = ""
   @State private var date = Date()
 
@@ -114,7 +129,7 @@ struct MeasurementDetailView: View {
             HStack {
               Text(dateFormatter.string(from: entry.date))
               Spacer()
-              Text("\(entry.value) \(measurementType.unit ?? "")")
+              Text("\(entry.value, specifier: "%.2f") \(measurementType.unit ?? "")")
             }
           }
         }

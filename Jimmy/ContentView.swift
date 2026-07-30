@@ -243,18 +243,20 @@ struct HomeView: View {
             }
 
             // Fasting Timer Card
-            FastingTimerCard(
-              isCurrentlyFasting: isCurrentlyFasting,
-              activeFastingSession: activeFastingSession,
-              lastCompletedFast: lastCompletedFast,
-              fastingTimerText: fastingTimerText,
-              onStartFasting: startFasting,
-              onEndFasting: endFasting,
-              onNavigateToLog: {
-                showingFastingLog = true
-              }
-            )
-            .padding(.horizontal)
+            if appSettings.showFastingTab {
+              FastingTimerCard(
+                isCurrentlyFasting: isCurrentlyFasting,
+                activeFastingSession: activeFastingSession,
+                lastCompletedFast: lastCompletedFast,
+                fastingTimerText: fastingTimerText,
+                onStartFasting: startFasting,
+                onEndFasting: endFasting,
+                onNavigateToLog: {
+                  showingFastingLog = true
+                }
+              )
+              .padding(.horizontal)
+            }
 
             // Overview Cards
             VStack(spacing: 12) {
@@ -498,6 +500,27 @@ struct HomeView: View {
   private func endFasting() {
     guard let session = activeFastingSession else { return }
     session.endSession()
+    
+    // Auto-complete fasting day if session was 16+ hours
+    let fastingDurationHours = session.duration / 3600
+    if fastingDurationHours >= 16 {
+      let calendar = Calendar.current
+      let endTime = session.endTime ?? Date()
+      let startOfDay = calendar.startOfDay(for: endTime)
+      
+      // Check if a fasting day entry already exists for this date
+      if let existingFastingDay = fastingDays.first(where: {
+        calendar.isDate($0.date, inSameDayAs: startOfDay)
+      }) {
+        // Update existing entry to mark as completed
+        existingFastingDay.didFast = true
+      } else {
+        // Create new fasting day entry
+        let newFastingDay = FastingDay(date: startOfDay, didFast: true)
+        modelContext.insert(newFastingDay)
+      }
+    }
+    
     try? modelContext.save()
   }
 
