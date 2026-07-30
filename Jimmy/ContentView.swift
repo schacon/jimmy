@@ -167,19 +167,18 @@ struct HomeView: View {
     return startOfMonth...today
   }
 
-  private var judgementDay: Date {
-    let components = DateComponents(year: 2025, month: 8, day: 28)
-    return calendar.date(from: components) ?? Date()
+  // Set in Settings; nil or a past date hides the countdown
+  private var judgementDayToShow: Date? {
+    guard let judgementDay = appSettings.judgementDay else { return nil }
+    let today = calendar.startOfDay(for: Date())
+    guard calendar.startOfDay(for: judgementDay) >= today else { return nil }
+    return judgementDay
   }
 
-  private var daysUntilJudgementDay: Int {
+  private func daysUntil(_ judgementDay: Date) -> Int {
     let today = calendar.startOfDay(for: Date())
     let judgement = calendar.startOfDay(for: judgementDay)
     return calendar.dateComponents([.day], from: today, to: judgement).day ?? 0
-  }
-
-  private var shouldShowJudgementDay: Bool {
-    return Date() < judgementDay
   }
 
   private var activeFastingSession: FastingSession? {
@@ -203,28 +202,28 @@ struct HomeView: View {
         VStack(spacing: 20) {
           VStack(spacing: 16) {
 
-            // Judgement Day Countdown (if applicable)
-            if shouldShowJudgementDay {
+            // Judgement Day Countdown (if configured and not yet past)
+            if let judgementDay = judgementDayToShow {
               HStack(spacing: 12) {
                 Image(systemName: "clock.badge.exclamationmark")
                   .font(.title2)
                   .foregroundColor(.purple)
-                
+
                 VStack(alignment: .leading, spacing: 2) {
                   Text("Judgement Day")
                     .font(.headline)
                     .fontWeight(.bold)
                     .foregroundColor(.primary)
-                  
-                  Text("August 28, 2025")
+
+                  Text(judgementDay.formatted(date: .abbreviated, time: .omitted))
                     .font(.caption)
                     .foregroundColor(.secondary)
                 }
-                
+
                 Spacer()
-                
+
                 VStack(alignment: .trailing, spacing: 2) {
-                  Text("\(daysUntilJudgementDay)")
+                  Text("\(daysUntil(judgementDay))")
                     .font(.system(size: 28, weight: .heavy))
                     .foregroundColor(.purple)
                   
@@ -2438,6 +2437,44 @@ struct SettingsView: View {
   var body: some View {
     NavigationView {
       Form {
+        Section(header: Text("Judgement Day")) {
+          Toggle(
+            isOn: Binding(
+              get: { appSettings.judgementDay != nil },
+              set: { enabled in
+                appSettings.judgementDay =
+                  enabled
+                  ? Calendar.current.date(
+                    byAdding: .day, value: 30, to: Calendar.current.startOfDay(for: Date()))
+                  : nil
+                try? modelContext.save()
+              }
+            )
+          ) {
+            HStack {
+              Image(systemName: "clock.badge.exclamationmark")
+                .foregroundColor(.purple)
+                .frame(width: 20)
+              Text("Countdown")
+            }
+          }
+
+          if let judgementDay = appSettings.judgementDay {
+            DatePicker(
+              "Date",
+              selection: Binding(
+                get: { judgementDay },
+                set: { newValue in
+                  appSettings.judgementDay = Calendar.current.startOfDay(for: newValue)
+                  try? modelContext.save()
+                }
+              ),
+              in: Calendar.current.startOfDay(for: Date())...,
+              displayedComponents: .date
+            )
+          }
+        }
+
         Section(header: Text("Visible Tabs")) {
           Toggle(
             isOn: Binding(

@@ -85,6 +85,7 @@ final class FastingSession {
 
 @Model
 final class AppSettings {
+    var judgementDay: Date?
     var showHomeTab: Bool = true
     var showDrinksTab: Bool = true
     var showSaunaTab: Bool = true
