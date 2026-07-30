@@ -8,7 +8,7 @@
 	</array>
 	<key>NSHealthShareUsageDescription</key>
 	<string>This app reads your weight and step count data from Apple Health to display trends and weekly averages alongside your habit tracking data.</string>
-	<key>NSHealthUpdateUsageDescription</key>
-	<string>This app may write health data to Apple Health in the future for habit tracking integration.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
