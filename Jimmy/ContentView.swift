@@ -2419,8 +2419,7 @@ struct SettingsView: View {
   @Query private var fastingDays: [FastingDay]
   @Query private var exercises: [Exercise]
   @Query private var exerciseEntries: [ExerciseEntry]
-  @State private var showingShareSheet = false
-  @State private var shareURL: URL?
+  @State private var shareItem: ShareItem?
 
   private var appSettings: AppSettings {
     if let existingSettings = settings.first {
@@ -2626,10 +2625,8 @@ struct SettingsView: View {
       }
       .navigationTitle("Settings")
       .navigationBarTitleDisplayMode(.large)
-      .sheet(isPresented: $showingShareSheet) {
-        if let shareURL = shareURL {
-          ShareSheet(activityItems: [shareURL])
-        }
+      .sheet(item: $shareItem) { item in
+        ShareSheet(activityItems: [item.url])
       }
     }
   }
@@ -2710,8 +2707,7 @@ struct SettingsView: View {
 
         // Show share sheet
         await MainActor.run {
-          shareURL = tempURL
-          showingShareSheet = true
+          shareItem = ShareItem(url: tempURL)
         }
 
       } catch {
@@ -2726,6 +2722,11 @@ struct SettingsView: View {
     return formatter.string(from: Date())
   }
 
+}
+
+struct ShareItem: Identifiable {
+  let id = UUID()
+  let url: URL
 }
 
 struct ShareSheet: UIViewControllerRepresentable {
