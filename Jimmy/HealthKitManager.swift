@@ -19,7 +19,7 @@ class HealthKitManager {
   var lastWeekAverageWeight: Double = 0
   var weeklyAverageSteps: Double = 0
 
-  struct HealthDataPoint {
+  struct HealthDataPoint: Sendable {
     let date: Date
     let value: Double
   }
@@ -94,16 +94,16 @@ class HealthKitManager {
       withStart: startDate, end: endDate, options: .strictStartDate)
     let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)
 
-    return await withCheckedContinuation { continuation in
+    let dataPoints: [HealthDataPoint] = await withCheckedContinuation { continuation in
       let query = HKSampleQuery(
         sampleType: weightType,
         predicate: predicate,
         limit: HKObjectQueryNoLimit,
         sortDescriptors: [sortDescriptor]
-      ) { [weak self] _, samples, error in
+      ) { _, samples, error in
 
         guard let samples = samples as? [HKQuantitySample], error == nil else {
-          continuation.resume()
+          continuation.resume(returning: [])
           return
         }
 
@@ -129,14 +129,14 @@ class HealthKitManager {
           HealthDataPoint(date: date, value: minWeight)
         }.sorted { $0.date < $1.date }
 
-        DispatchQueue.main.async {
-          self?.weightData = dataPoints
-        }
-
-        continuation.resume()
+        continuation.resume(returning: dataPoints)
       }
 
       healthStore.execute(query)
+    }
+
+    await MainActor.run {
+      self.weightData = dataPoints
     }
   }
 
@@ -145,7 +145,6 @@ class HealthKitManager {
 
     let calendar = Calendar.current
     let endDate = Date()
-    let startDate = calendar.date(byAdding: .day, value: -30, to: endDate) ?? endDate
 
     // Create daily intervals for step count aggregation
     var dailySteps: [HealthDataPoint] = []
@@ -164,8 +163,9 @@ class HealthKitManager {
       dailySteps.append(HealthDataPoint(date: dayStart, value: steps))
     }
 
+    let stepsPoints = dailySteps
     await MainActor.run {
-      self.stepsData = dailySteps
+      self.stepsData = stepsPoints
     }
   }
 
