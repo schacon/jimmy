@@ -916,9 +916,7 @@ struct CalendarView: View {
   }
 
   private var daysInMonth: [Date] {
-    guard let monthInterval = calendar.dateInterval(of: .month, for: currentDate),
-      let firstOfMonth = calendar.dateInterval(of: .month, for: currentDate)?.start
-    else {
+    guard let firstOfMonth = calendar.dateInterval(of: .month, for: currentDate)?.start else {
       return []
     }
 
@@ -1696,9 +1694,7 @@ struct DrinksCalendarGrid: View {
   }
 
   private var daysInMonth: [Date] {
-    guard let monthInterval = calendar.dateInterval(of: .month, for: currentDate),
-      let firstOfMonth = calendar.dateInterval(of: .month, for: currentDate)?.start
-    else {
+    guard let firstOfMonth = calendar.dateInterval(of: .month, for: currentDate)?.start else {
       return []
     }
 
@@ -2091,9 +2087,7 @@ struct SaunaCalendarGrid: View {
   }
 
   private var daysInMonth: [Date] {
-    guard let monthInterval = calendar.dateInterval(of: .month, for: currentDate),
-      let firstOfMonth = calendar.dateInterval(of: .month, for: currentDate)?.start
-    else {
+    guard let firstOfMonth = calendar.dateInterval(of: .month, for: currentDate)?.start else {
       return []
     }
 
@@ -3066,9 +3060,7 @@ struct FastingCalendarGrid: View {
   }
 
   private var daysInMonth: [Date] {
-    guard let monthInterval = calendar.dateInterval(of: .month, for: currentDate),
-      let firstOfMonth = calendar.dateInterval(of: .month, for: currentDate)?.start
-    else {
+    guard let firstOfMonth = calendar.dateInterval(of: .month, for: currentDate)?.start else {
       return []
     }
 
