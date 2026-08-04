@@ -23,4 +23,6 @@ Open `Jimmy.xcodeproj` in Xcode and run the `Jimmy` scheme. HealthKit and CloudK
 
 ## Privacy
 
-All data stays on device and in the user's private iCloud account — no analytics, no third-party services, no developer-accessible servers. See the [privacy policy](https://schacon.github.io/jimmy/).
+All data stays on device and in the user's private iCloud account — no analytics, no third-party services, no developer-accessible servers. See the [privacy policy](https://schacon.github.io/jimmy/privacy.html).
+
+The `docs/` directory is the GitHub Pages site: a landing page at `index.html` and the privacy policy at `privacy.html`.
