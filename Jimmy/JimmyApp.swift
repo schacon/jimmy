@@ -12,7 +12,10 @@ import CloudKit
 
 @main
 struct JimmyApp: App {
-    var sharedModelContainer: ModelContainer = {
+    let sharedModelContainer: ModelContainer
+    @State private var syncMonitor: CloudSyncMonitor
+
+    init() {
         let schema = Schema([
             Workout.self,
             DrinkDay.self,
@@ -26,7 +29,7 @@ struct JimmyApp: App {
             MeasurementEntry.self,
             AppSettings.self,
         ])
-        
+
         // Try CloudKit first, fallback to local storage if it fails
         do {
             let cloudConfiguration = ModelConfiguration(
@@ -34,7 +37,9 @@ struct JimmyApp: App {
                 isStoredInMemoryOnly: false,
                 cloudKitDatabase: .automatic
             )
-            return try ModelContainer(for: schema, configurations: [cloudConfiguration])
+            sharedModelContainer = try ModelContainer(
+                for: schema, configurations: [cloudConfiguration])
+            _syncMonitor = State(initialValue: CloudSyncMonitor(isCloudSyncEnabled: true))
         } catch {
             print("CloudKit setup failed, using local storage: \(error)")
             // Fallback to local storage
@@ -43,17 +48,20 @@ struct JimmyApp: App {
                 isStoredInMemoryOnly: false
             )
             do {
-                return try ModelContainer(for: schema, configurations: [localConfiguration])
+                sharedModelContainer = try ModelContainer(
+                    for: schema, configurations: [localConfiguration])
+                _syncMonitor = State(initialValue: CloudSyncMonitor(isCloudSyncEnabled: false))
             } catch {
                 fatalError("Could not create ModelContainer: \(error)")
             }
         }
-    }()
+    }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
         .modelContainer(sharedModelContainer)
+        .environment(syncMonitor)
     }
 }

@@ -2429,6 +2429,7 @@ struct SaunaDayExportContainer: Codable {
 
 struct SettingsView: View {
   @Environment(\.modelContext) private var modelContext
+  @Environment(CloudSyncMonitor.self) private var syncMonitor
   @Query private var settings: [AppSettings]
   @Query private var workouts: [Workout]
   @Query private var drinkDays: [DrinkDay]
@@ -2612,6 +2613,39 @@ struct SettingsView: View {
           }
         }
 
+        Section(header: Text("iCloud Sync")) {
+          HStack {
+            Image(systemName: syncStatusIcon)
+              .foregroundColor(syncStatusColor)
+              .frame(width: 20)
+            Text("Status")
+            Spacer()
+            Text(syncStatusText)
+              .foregroundColor(.secondary)
+          }
+
+          HStack {
+            Image(systemName: "clock.arrow.2.circlepath")
+              .foregroundColor(.secondary)
+              .frame(width: 20)
+            Text("Last Synced")
+            Spacer()
+            if let lastSync = syncMonitor.lastSyncDate {
+              Text(lastSync.formatted(.relative(presentation: .named)))
+                .foregroundColor(.secondary)
+            } else {
+              Text("Never")
+                .foregroundColor(.secondary)
+            }
+          }
+
+          if case .failed(let message) = syncMonitor.status {
+            Text(message)
+              .font(.caption)
+              .foregroundColor(.red)
+          }
+        }
+
         Section(header: Text("About")) {
           HStack {
             Text("App Version")
@@ -2623,7 +2657,7 @@ struct SettingsView: View {
           HStack {
             Text("Data Storage")
             Spacer()
-            Text("iCloud + Local")
+            Text(syncMonitor.isCloudSyncEnabled ? "iCloud + Local" : "Local Only")
               .foregroundColor(.secondary)
           }
         }
@@ -2642,9 +2676,45 @@ struct SettingsView: View {
       }
       .navigationTitle("Settings")
       .navigationBarTitleDisplayMode(.large)
+      .task {
+        await syncMonitor.refreshAccountStatus()
+      }
       .sheet(item: $shareItem) { item in
         ShareSheet(activityItems: [item.url])
       }
+    }
+  }
+
+  private var syncStatusText: String {
+    switch syncMonitor.status {
+    case .localOnly: return "Off (Local Only)"
+    case .accountUnavailable: return "iCloud Unavailable"
+    case .syncing: return "Syncing…"
+    case .waiting: return "Waiting to Sync"
+    case .synced: return "Synced"
+    case .failed: return "Sync Error"
+    }
+  }
+
+  private var syncStatusIcon: String {
+    switch syncMonitor.status {
+    case .localOnly: return "icloud.slash"
+    case .accountUnavailable: return "xmark.icloud"
+    case .syncing: return "arrow.triangle.2.circlepath.icloud"
+    case .waiting: return "icloud"
+    case .synced: return "checkmark.icloud"
+    case .failed: return "exclamationmark.icloud"
+    }
+  }
+
+  private var syncStatusColor: Color {
+    switch syncMonitor.status {
+    case .localOnly: return .gray
+    case .accountUnavailable: return .orange
+    case .syncing: return .blue
+    case .waiting: return .secondary
+    case .synced: return .green
+    case .failed: return .red
     }
   }
 
@@ -3595,4 +3665,5 @@ struct EditFastingSessionView: View {
 #Preview {
   ContentView()
     .modelContainer(for: Workout.self, inMemory: true)
+    .environment(CloudSyncMonitor(isCloudSyncEnabled: false))
 }
