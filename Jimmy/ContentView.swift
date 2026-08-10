@@ -6,9 +6,12 @@
 //
 
 import Foundation
-import HealthKit
 import SwiftData
 import SwiftUI
+
+#if os(iOS)
+  import HealthKit
+#endif
 
 enum AppTab: String, CaseIterable {
   case home = "home"
@@ -197,7 +200,7 @@ struct HomeView: View {
   }
 
   var body: some View {
-    NavigationView {
+    NavigationStack {
       ScrollView {
         VStack(spacing: 20) {
           VStack(spacing: 16) {
@@ -324,7 +327,8 @@ struct HomeView: View {
             }
             .padding(.horizontal)
 
-            // HealthKit Data Section
+            // HealthKit Data Section (HealthKit does not exist on macOS)
+            #if os(iOS)
             HStack {
 
               Spacer()
@@ -388,6 +392,7 @@ struct HomeView: View {
               }
               .padding(.vertical, 20)
             }
+            #endif
           }
           Spacer(minLength: 40)
         }
@@ -577,7 +582,7 @@ struct OverviewCard: View {
         }
       }
       .padding()
-      .background(Color(.systemGray6))
+      .background(Color.platformCardBackground)
       .cornerRadius(16)
       .overlay(
         RoundedRectangle(cornerRadius: 16)
@@ -751,7 +756,7 @@ struct WorkoutCalendarView: View {
       }
       .padding(.bottom, 40)
     }
-    .background(Color(.systemBackground))
+    .background(Color.platformBackground)
     .onAppear {
       exportWorkoutsToJSON()
     }
@@ -1038,7 +1043,7 @@ struct DayView: View {
 
   private var backgroundColor: Color {
     if workoutStatus == .future {
-      return Color(.systemGray5)
+      return Color.platformGray5
     }
 
     switch workoutStatus {
@@ -1049,7 +1054,7 @@ struct DayView: View {
     case .noData:
       return .clear
     case .future:
-      return Color(.systemGray5)
+      return Color.platformGray5
     }
   }
 
@@ -1120,7 +1125,7 @@ struct StatsBox: View {
     }
     .padding(12)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .background(Color(.systemGray6))
+    .background(Color.platformCardBackground)
     .cornerRadius(12)
   }
 
@@ -1339,7 +1344,7 @@ struct SaunaCalendarView: View {
       }
       .padding(.bottom, 40)
     }
-    .background(Color(.systemBackground))
+    .background(Color.platformBackground)
     .onAppear {
       exportSaunaDaysToJSON()
     }
@@ -1529,7 +1534,7 @@ struct DrinksCalendarView: View {
       }
       .padding(.bottom, 40)
     }
-    .background(Color(.systemBackground))
+    .background(Color.platformBackground)
     .onAppear {
       exportDrinkDaysToJSON()
     }
@@ -1816,7 +1821,7 @@ struct DrinkDayView: View {
 
   private var backgroundColor: Color {
     if drinkStatus == .future {
-      return Color(.systemGray5)
+      return Color.platformGray5
     }
 
     switch drinkStatus {
@@ -1827,7 +1832,7 @@ struct DrinkDayView: View {
     case .noData:
       return .clear
     case .future:
-      return Color(.systemGray5)
+      return Color.platformGray5
     }
   }
 
@@ -1898,7 +1903,7 @@ struct DrinksStatsBox: View {
     }
     .padding(12)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .background(Color(.systemGray6))
+    .background(Color.platformCardBackground)
     .cornerRadius(12)
   }
 
@@ -2209,7 +2214,7 @@ struct SaunaDayView: View {
 
   private var backgroundColor: Color {
     if saunaStatus == .future {
-      return Color(.systemGray5)
+      return Color.platformGray5
     }
 
     switch saunaStatus {
@@ -2220,7 +2225,7 @@ struct SaunaDayView: View {
     case .noData:
       return .clear
     case .future:
-      return Color(.systemGray5)
+      return Color.platformGray5
     }
   }
 
@@ -2291,7 +2296,7 @@ struct SaunaStatsBox: View {
     }
     .padding(12)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .background(Color(.systemGray6))
+    .background(Color.platformCardBackground)
     .cornerRadius(12)
   }
 
@@ -2452,7 +2457,7 @@ struct SettingsView: View {
   }
 
   var body: some View {
-    NavigationView {
+    NavigationStack {
       Form {
         Section(header: Text("Judgement Day")) {
           Toggle(
@@ -2816,15 +2821,42 @@ struct ShareItem: Identifiable {
   let url: URL
 }
 
-struct ShareSheet: UIViewControllerRepresentable {
-  let activityItems: [Any]
+#if os(iOS)
+  struct ShareSheet: UIViewControllerRepresentable {
+    let activityItems: [Any]
 
-  func makeUIViewController(context: Context) -> UIActivityViewController {
-    UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+      UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
   }
+#else
+  struct ShareSheet: View {
+    let activityItems: [Any]
+    @Environment(\.dismiss) private var dismiss
 
-  func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
-}
+    var body: some View {
+      VStack(spacing: 16) {
+        Image(systemName: "square.and.arrow.up")
+          .font(.system(size: 36))
+          .foregroundColor(.blue)
+        Text("Export Ready")
+          .font(.headline)
+        if let url = activityItems.first as? URL {
+          ShareLink(item: url) {
+            Label("Share \(url.lastPathComponent)", systemImage: "doc.text")
+          }
+          .buttonStyle(.borderedProminent)
+        }
+        Button("Done") { dismiss() }
+          .buttonStyle(.bordered)
+      }
+      .padding(32)
+      .frame(minWidth: 360)
+    }
+  }
+#endif
 
 // MARK: - Comprehensive Export Structure
 struct ComprehensiveExport: Codable {
@@ -2965,7 +2997,7 @@ struct FastingCalendarView: View {
       }
       .padding(.bottom, 40)
     }
-    .background(Color(.systemBackground))
+    .background(Color.platformBackground)
     .onAppear {
       exportFastingDaysToJSON()
     }
@@ -3252,7 +3284,7 @@ struct FastingDayView: View {
 
   private var backgroundColor: Color {
     if fastingStatus == .future {
-      return Color(.systemGray5)
+      return Color.platformGray5
     }
 
     switch fastingStatus {
@@ -3263,7 +3295,7 @@ struct FastingDayView: View {
     case .noData:
       return .clear
     case .future:
-      return Color(.systemGray5)
+      return Color.platformGray5
     }
   }
 
@@ -3334,7 +3366,7 @@ struct FastingStatsBox: View {
     }
     .padding(12)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .background(Color(.systemGray6))
+    .background(Color.platformCardBackground)
     .cornerRadius(12)
   }
 

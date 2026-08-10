@@ -14,6 +14,8 @@ import CloudKit
 struct JimmyApp: App {
     let sharedModelContainer: ModelContainer
     @State private var syncMonitor: CloudSyncMonitor
+    private let snapshotService: WidgetSnapshotService
+    @Environment(\.scenePhase) private var scenePhase
 
     init() {
         let schema = Schema([
@@ -55,13 +57,25 @@ struct JimmyApp: App {
                 fatalError("Could not create ModelContainer: \(error)")
             }
         }
+        snapshotService = WidgetSnapshotService(container: sharedModelContainer)
     }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                #if os(macOS)
+                    .frame(minWidth: 700, minHeight: 620)
+                #endif
         }
+        .defaultSize(width: 900, height: 760)
         .modelContainer(sharedModelContainer)
         .environment(syncMonitor)
+        .onChange(of: scenePhase) { _, newPhase in
+            // Catch changes that arrive outside ModelContext.didSave, such as
+            // CloudKit imports applied while the app was inactive.
+            if newPhase == .active || newPhase == .background {
+                snapshotService.refresh()
+            }
+        }
     }
 }

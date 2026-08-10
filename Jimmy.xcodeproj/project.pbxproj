@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		31236A0E2E36360000C9E6EC /* JimmyWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 31236A012E36360000C9E6EC /* JimmyWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		312369042E36345E00C9E6EC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,12 +25,20 @@
 			remoteGlobalIDString = 312368EE2E36345D00C9E6EC;
 			remoteInfo = Jimmy;
 		};
+		31236A0B2E36360000C9E6EC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 312368E72E36345D00C9E6EC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 31236A042E36360000C9E6EC;
+			remoteInfo = JimmyWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		312368EF2E36345D00C9E6EC /* Jimmy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Jimmy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		312369032E36345E00C9E6EC /* JimmyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JimmyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3123690D2E36345F00C9E6EC /* JimmyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JimmyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		31236A012E36360000C9E6EC /* JimmyWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = JimmyWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -36,6 +48,13 @@
 				Info.plist,
 			);
 			target = 312368EE2E36345D00C9E6EC /* Jimmy */;
+		};
+		31236A032E36360000C9E6EC /* Exceptions for "JimmyWidget" folder in "JimmyWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 31236A042E36360000C9E6EC /* JimmyWidgetExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -56,6 +75,19 @@
 		312369102E36345F00C9E6EC /* JimmyUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = JimmyUITests;
+			sourceTree = "<group>";
+		};
+		31236A022E36360000C9E6EC /* JimmyWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				31236A032E36360000C9E6EC /* Exceptions for "JimmyWidget" folder in "JimmyWidgetExtension" target */,
+			);
+			path = JimmyWidget;
+			sourceTree = "<group>";
+		};
+		31236A0F2E36360000C9E6EC /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -82,13 +114,36 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		31236A062E36360000C9E6EC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		31236A0D2E36360000C9E6EC /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				31236A0E2E36360000C9E6EC /* JimmyWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXGroup section */
 		312368E62E36345D00C9E6EC = {
 			isa = PBXGroup;
 			children = (
 				312368F12E36345D00C9E6EC /* Jimmy */,
+				31236A022E36360000C9E6EC /* JimmyWidget */,
+				31236A0F2E36360000C9E6EC /* Shared */,
 				312369062E36345E00C9E6EC /* JimmyTests */,
 				312369102E36345F00C9E6EC /* JimmyUITests */,
 				312368F02E36345D00C9E6EC /* Products */,
@@ -101,6 +156,7 @@
 				312368EF2E36345D00C9E6EC /* Jimmy.app */,
 				312369032E36345E00C9E6EC /* JimmyTests.xctest */,
 				3123690D2E36345F00C9E6EC /* JimmyUITests.xctest */,
+				31236A012E36360000C9E6EC /* JimmyWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -115,13 +171,16 @@
 				312368EB2E36345D00C9E6EC /* Sources */,
 				312368EC2E36345D00C9E6EC /* Frameworks */,
 				312368ED2E36345D00C9E6EC /* Resources */,
+				31236A0D2E36360000C9E6EC /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				31236A0C2E36360000C9E6EC /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				312368F12E36345D00C9E6EC /* Jimmy */,
+				31236A0F2E36360000C9E6EC /* Shared */,
 			);
 			name = Jimmy;
 			packageProductDependencies = (
@@ -129,6 +188,29 @@
 			productName = Jimmy;
 			productReference = 312368EF2E36345D00C9E6EC /* Jimmy.app */;
 			productType = "com.apple.product-type.application";
+		};
+		31236A042E36360000C9E6EC /* JimmyWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 31236A082E36360000C9E6EC /* Build configuration list for PBXNativeTarget "JimmyWidgetExtension" */;
+			buildPhases = (
+				31236A052E36360000C9E6EC /* Sources */,
+				31236A062E36360000C9E6EC /* Frameworks */,
+				31236A072E36360000C9E6EC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				31236A022E36360000C9E6EC /* JimmyWidget */,
+				31236A0F2E36360000C9E6EC /* Shared */,
+			);
+			name = JimmyWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = JimmyWidgetExtension;
+			productReference = 31236A012E36360000C9E6EC /* JimmyWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 		312369022E36345E00C9E6EC /* JimmyTests */ = {
 			isa = PBXNativeTarget;
@@ -197,6 +279,9 @@
 						CreatedOnToolsVersion = 16.2;
 						TestTargetID = 312368EE2E36345D00C9E6EC;
 					};
+					31236A042E36360000C9E6EC = {
+						CreatedOnToolsVersion = 16.2;
+					};
 				};
 			};
 			buildConfigurationList = 312368EA2E36345D00C9E6EC /* Build configuration list for PBXProject "Jimmy" */;
@@ -214,6 +299,7 @@
 			projectRoot = "";
 			targets = (
 				312368EE2E36345D00C9E6EC /* Jimmy */,
+				31236A042E36360000C9E6EC /* JimmyWidgetExtension */,
 				312369022E36345E00C9E6EC /* JimmyTests */,
 				3123690C2E36345F00C9E6EC /* JimmyUITests */,
 			);
@@ -236,6 +322,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		3123690B2E36345F00C9E6EC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		31236A072E36360000C9E6EC /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -266,6 +359,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		31236A052E36360000C9E6EC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -279,6 +379,11 @@
 			target = 312368EE2E36345D00C9E6EC /* Jimmy */;
 			targetProxy = 3123690E2E36345F00C9E6EC /* PBXContainerItemProxy */;
 		};
+		31236A0C2E36360000C9E6EC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 31236A042E36360000C9E6EC /* JimmyWidgetExtension */;
+			targetProxy = 31236A0B2E36360000C9E6EC /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -288,13 +393,16 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Jimmy/Jimmy.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = Jimmy/JimmyMac.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "\"Jimmy/Preview Content\"";
 				DEVELOPMENT_TEAM = 6HP89HJM59;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Jimmy/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -304,9 +412,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.chacons.Jimmy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -319,13 +432,16 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Jimmy/Jimmy.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = Jimmy/JimmyMac.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "\"Jimmy/Preview Content\"";
 				DEVELOPMENT_TEAM = 6HP89HJM59;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Jimmy/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -335,9 +451,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.chacons.Jimmy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -535,6 +656,72 @@
 			};
 			name = Release;
 		};
+		31236A092E36360000C9E6EC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = JimmyWidget/JimmyWidget.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = JimmyWidget/JimmyWidgetMac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
+				DEVELOPMENT_TEAM = 6HP89HJM59;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = JimmyWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Jimmy Widget";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chacons.Jimmy.JimmyWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		31236A0A2E36360000C9E6EC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = JimmyWidget/JimmyWidget.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = JimmyWidget/JimmyWidgetMac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
+				DEVELOPMENT_TEAM = 6HP89HJM59;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = JimmyWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Jimmy Widget";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chacons.Jimmy.JimmyWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -570,6 +757,15 @@
 			buildConfigurations = (
 				3123691F2E36345F00C9E6EC /* Debug */,
 				312369202E36345F00C9E6EC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		31236A082E36360000C9E6EC /* Build configuration list for PBXNativeTarget "JimmyWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				31236A092E36360000C9E6EC /* Debug */,
+				31236A0A2E36360000C9E6EC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

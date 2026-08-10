@@ -31,7 +31,7 @@ struct ExerciseTrackingView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(spacing: 20) {
                 // Current Date Display with Change Button
                 VStack(spacing: 12) {
@@ -82,7 +82,7 @@ struct ExerciseTrackingView: View {
                         .frame(maxHeight: 300)
                     }
                     .padding()
-                    .background(Color(.systemGray6))
+                    .background(Color.platformCardBackground)
                     .cornerRadius(12)
                     .transition(.asymmetric(
                         insertion: .scale.combined(with: .opacity),
@@ -242,7 +242,7 @@ struct ExerciseEntryCard: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(Color.platformBackground)
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
         .sheet(isPresented: $showingEdit) {

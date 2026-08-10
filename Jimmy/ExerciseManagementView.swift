@@ -27,7 +27,7 @@ struct ExerciseManagementView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
                 if exercises.isEmpty {
                     VStack(spacing: 20) {
@@ -139,7 +139,7 @@ struct EditExerciseView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section("Exercise Details") {
                     TextField("Exercise Name", text: $name)
@@ -189,7 +189,7 @@ struct EditExerciseEntryView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section("Exercise") {
                     HStack {

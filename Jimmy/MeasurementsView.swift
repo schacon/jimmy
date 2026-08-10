@@ -7,7 +7,7 @@ struct MeasurementsView: View {
   @State private var showingAddType = false
 
   var body: some View {
-    NavigationView {
+    NavigationStack {
       List {
         ForEach(measurementTypes) { type in
           NavigationLink(destination: MeasurementDetailView(measurementType: type)) {
@@ -62,7 +62,7 @@ struct AddMeasurementTypeView: View {
   private let unitOptions = ["cm", "mm", "inches"]
 
   var body: some View {
-    NavigationView {
+    NavigationStack {
       Form {
         Section {
           TextField("Name", text: $name)

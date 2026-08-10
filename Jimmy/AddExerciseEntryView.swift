@@ -23,7 +23,7 @@ struct AddExerciseEntryView: View {
     @State private var notes = ""
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section("Exercise") {
                     if exercises.isEmpty {
@@ -190,7 +190,7 @@ struct NewExerciseView: View {
     @State private var category = ""
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section("Exercise Details") {
                     TextField("Exercise Name", text: $name)

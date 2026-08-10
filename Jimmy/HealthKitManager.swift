@@ -6,6 +6,8 @@
 //
 
 import Foundation
+
+#if os(iOS)
 import HealthKit
 
 @Observable
@@ -225,3 +227,26 @@ class HealthKitManager {
     }
   }
 }
+
+#else
+
+// HealthKit does not exist on macOS; this inert stand-in keeps the shared
+// SwiftUI code compiling while the health UI stays hidden on the Mac.
+@Observable
+class HealthKitManager {
+  var isAuthorized = false
+  var weightData: [HealthDataPoint] = []
+  var stepsData: [HealthDataPoint] = []
+  var weeklyAverageWeight: Double = 0
+  var lastWeekAverageWeight: Double = 0
+  var weeklyAverageSteps: Double = 0
+
+  struct HealthDataPoint: Sendable {
+    let date: Date
+    let value: Double
+  }
+
+  func requestPermissions() async {}
+  func fetchHealthData() async {}
+}
+#endif

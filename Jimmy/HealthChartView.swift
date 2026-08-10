@@ -112,7 +112,7 @@ struct HealthDataCard: View {
       }
     }
     .padding()
-    .background(Color(.systemGray6))
+    .background(Color.platformCardBackground)
     .cornerRadius(16)
     .overlay(
       RoundedRectangle(cornerRadius: 16)
@@ -260,7 +260,7 @@ struct DetailedHealthChartView: View {
       }
     }
     .padding()
-    .background(Color(.systemBackground))
+    .background(Color.platformBackground)
     .cornerRadius(16)
     .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
   }
